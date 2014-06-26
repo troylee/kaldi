@@ -94,8 +94,7 @@ class MelBanks {
 // Compute liftering coefficients (scaling on cepstral coeffs)
 // coeffs are numbered slightly differently from HTK: the zeroth
 // index is C0, which is not affected.
-void ComputeLifterCoeffs(BaseFloat Q, VectorBase<BaseFloat> *coeffs) ;
-
+template<typename Real> void ComputeLifterCoeffs(BaseFloat Q, VectorBase<Real> *coeffs);
 
 
 // Durbin's recursion - converts autocorrelation coefficients to the LPC

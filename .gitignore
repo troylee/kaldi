@@ -32,17 +32,20 @@ egs/aurora4/n00/log/
 
 # /tools/
 tools/ATLAS/
+tools/CLAPACK_include/
 tools/atlas3.10.0.tar.bz2
-tools/atlas3.8.3.tar.gz
+#tools/atlas3.8.3.tar.gz
 tools/irstlm/
 tools/openfst
+#tools/openfst-1.2.10.tar.gz
+tools/openfst-1.2.10
 tools/openfst-1.3.2.tar.gz
 tools/openfst-1.3.2/
 tools/openfst-1.3.4.tar.gz
 tools/openfst-1.3.4/
 tools/pa_stable_v19_20111121.tgz
 tools/portaudio/
-tools/sctk-2.4.0-20091110-0958.tar.bz2
+#tools/sctk-2.4.0-20091110-0958.tar.bz2
 tools/sctk-2.4.0/
 tools/sph2pipe_v2.5.tar.gz
 tools/sph2pipe_v2.5/
@@ -488,6 +491,81 @@ tools/sph2pipe_v2.5/
 /src/nnetbin/transf-to-nnet
 /src/nnetbin/rbm-uttbias-train
 /src/nnetbin/rbm-uttbias-forward
+/src/nnetbin/analyze-gmm-nnet
+/src/nnetbin/analyze-rec-errs
+/src/nnetbin/append-lin
+/src/nnetbin/batched-feats
+/src/nnetbin/codebl-create
+/src/nnetbin/codebl-forward
+/src/nnetbin/codebl-train-xent-hardlab-frmshuff
+/src/nnetbin/codevec-init
+/src/nnetbin/codevec-train-xent-hardlab-frmshuff
+/src/nnetbin/compute-feats-mse
+/src/nnetbin/compute-mask-ratio
+/src/nnetbin/compute-posts-kl
+/src/nnetbin/copy-feats-from-text
+/src/nnetbin/copy-feats-to-text
+/src/nnetbin/dropoutbl-to-biasedlinearity
+/src/nnetbin/est-avg-mask-priors
+/src/nnetbin/est-feat-masks
+/src/nnetbin/est-feat-masks-with-pdf
+/src/nnetbin/filter-posts-by-err
+/src/nnetbin/gaussbl-create
+/src/nnetbin/gaussbl-forward
+/src/nnetbin/gaussbl-train
+/src/nnetbin/gen-2d-feats
+/src/nnetbin/gmm-pdf-info
+/src/nnetbin/grbm-train-frmshuff
+/src/nnetbin/grbm-vts-forward
+/src/nnetbin/hmmbl-create
+/src/nnetbin/hmmbl-vts-forward
+/src/nnetbin/ideal-hidmask-forward
+/src/nnetbin/ideal-hidmask-stats
+/src/nnetbin/interpolate-two-posts
+/src/nnetbin/lin-init
+/src/nnetbin/lin-init-ae
+/src/nnetbin/lin-merge
+/src/nnetbin/lin-nnet-forward
+/src/nnetbin/lin-train-mse-ae
+/src/nnetbin/lin-train-perutt-single-iter
+/src/nnetbin/lin-train-xent-hardlab-perutt
+/src/nnetbin/linrbm-extract-linbl
+/src/nnetbin/linrbm-init
+/src/nnetbin/linrbm-train-cd1-frmshuff
+/src/nnetbin/nnet-hidmask-forward
+/src/nnetbin/nnet-hidmask-mse-tgtmat-frmshuff
+/src/nnetbin/nnet-hidmask-train-frmshuff
+/src/nnetbin/nnet-train-mse-tgtmat-frmshuff-denoise
+/src/nnetbin/nnet-train-stereo
+/src/nnetbin/nnet-train-xent-mse-frmshuff
+/src/nnetbin/nnet-xent-mse-split
+/src/nnetbin/nnet2-train-xent-mse-frmshuff
+/src/nnetbin/normalize-feats
+/src/nnetbin/posnegbl-create
+/src/nnetbin/posnegbl-forward
+/src/nnetbin/posnegbl-train
+/src/nnetbin/rbm-to-grbm
+/src/nnetbin/rbm-to-maskedrbm
+/src/nnetbin/rbms-convert-to-autoencoder
+/src/nnetbin/rorbm-init
+/src/nnetbin/rorbm-train-frmshuff
+/src/nnetbin/rorbm-train-utt
+/src/nnetbin/scale-nnet
+/src/nnetbin/sub-nnet
+/src/nnetbin/train-noise-cmvn
+/src/nnetbin/ubm-avg-likes
+/src/nnetbin/ubm-info
+/src/nnetbin/weight-tied-ae-train
+/src/nnetbin/write-ubm-to-matlab
+
+# /src/nnet_cpu
+/src/nnet_cpu/.depend.mk
+
+# /src/nnetbin_cpu
+/src/nnetbin_cpu/.depend.mk
+/src/nnetbin_cpu/nnet-forward
+/src/nnetbin_cpu/nnet-train-xent-hardlab-perutt
+/src/nnetbin_cpu/rnnlm-train-perseq
 
 # /src/nnet2/
 /src/nnet2/.depend.mk
@@ -667,6 +745,31 @@ tools/sph2pipe_v2.5/
 /src/util/kaldi-io-test
 /src/util/text-utils-test
 /src/util/parse-options-test
+
+# /src/tied/
+/src/tied/.depend.mk
+
+# /src/tiedbin/
+/src/tiedbin/.depend.mk
+/src/tiedbin/full-to-diag
+/src/tiedbin/init-tied-codebooks
+/src/tiedbin/smooth-stats-diag
+/src/tiedbin/smooth-stats-full
+/src/tiedbin/tied-diag-gmm-acc-stats-ali
+/src/tiedbin/tied-diag-gmm-align-compiled
+/src/tiedbin/tied-diag-gmm-decode-faster
+/src/tiedbin/tied-diag-gmm-decode-simple
+/src/tiedbin/tied-diag-gmm-est
+/src/tiedbin/tied-diag-gmm-init-model
+/src/tiedbin/tied-diag-gmm-init-mono
+/src/tiedbin/tied-full-gmm-acc-stats-ali
+/src/tiedbin/tied-full-gmm-align-compiled
+/src/tiedbin/tied-full-gmm-decode-faster
+/src/tiedbin/tied-full-gmm-decode-simple
+/src/tiedbin/tied-full-gmm-est
+/src/tiedbin/tied-full-gmm-init-model
+/src/tiedbin/tied-full-gmm-init-mono
+/src/tiedbin/tied-lbg
 
 # /src/vts
 /src/vts/.depend.mk

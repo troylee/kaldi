@@ -23,30 +23,7 @@ BINFILES = fstdeterminizestar  \
 # actually, this library is currently empty.  Everything is a header.
 LIBFILE = 
 
-all: $(BINFILES)
+ADDLIBS = ../base/kaldi-base.a ../util/kaldi-util.a
 
-
-$(BINFILES): ../base/kaldi-base.a ../util/kaldi-util.a
-
-%.a:
-	$(MAKE) -C ${@D} ${@F}
-
-clean:
-	-rm -f *.o *.a $(TESTFILES) $(BINFILES)
-
-test_compile: $(TESTFILES)
-  
-test: test_compile
-	@result=0; for x in $(TESTFILES); do echo -n "Running $$x ..."; ./$$x >/dev/null 2>&1; if [ $$? -ne 0 ]; then echo "... FAIL"; result=1; else echo "... SUCCESS";  fi;  done; exit $$result
-
-.valgrind: $(TESTFILES)
-
-
-depend:
-	-$(CXX) -M $(CXXFLAGS) *.cc > .depend.mk  
-
-# removing automatic making of "depend" as it's quite slow.
-#.depend.mk: depend
-
--include .depend.mk
+include ../makefiles/default_rules.mk
 

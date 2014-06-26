@@ -98,11 +98,13 @@ void Mfcc::Compute(const VectorBase<BaseFloat> &wave,
 
     // Convert the FFT into a power spectrum.
     ComputePowerSpectrum(&window);
-
     SubVector<BaseFloat> power_spectrum(window, 0, window.Dim()/2 + 1);
 
-    const MelBanks *this_mel_banks = GetMelBanks(vtln_warp);
+    if(!opts_.mel_opts.use_power) {
+      power_spectrum.ApplyPow(0.5);
+    }
 
+    const MelBanks *this_mel_banks = GetMelBanks(vtln_warp);
     this_mel_banks->Compute(power_spectrum, &mel_energies);
 
     mel_energies.ApplyLog();  // take the log.

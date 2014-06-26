@@ -100,6 +100,11 @@ void Fbank::Compute(const VectorBase<BaseFloat> &wave,
     ComputePowerSpectrum(&window);
     SubVector<BaseFloat> power_spectrum(window, 0, window.Dim()/2 + 1);
 
+    // use magnitude spectrum
+    if(!opts_.mel_opts.use_power) {
+      power_spectrum.ApplyPow(0.5);
+    }
+
     // Integrate with MelFiterbank over power spectrum
     const MelBanks *this_mel_banks = GetMelBanks(vtln_warp);
     this_mel_banks->Compute(power_spectrum, &mel_energies);

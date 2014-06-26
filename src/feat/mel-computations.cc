@@ -223,14 +223,16 @@ void MelBanks::Compute(const VectorBase<BaseFloat> &power_spectrum,
   }
 }
 
-void ComputeLifterCoeffs(BaseFloat Q, VectorBase<BaseFloat> *coeffs) {
+template<typename Real> void ComputeLifterCoeffs(BaseFloat Q, VectorBase<Real> *coeffs) {
   // Compute liftering coefficients (scaling on cepstral coeffs)
   // coeffs are numbered slightly differently from HTK: the zeroth
   // index is C0, which is not affected.
   for (int32 i = 0; i < coeffs->Dim(); i++)
-    (*coeffs)(i) = 1.0 + 0.5 * Q * sin (M_PI * i / Q);
+  (*coeffs)(i) = 1.0 + 0.5 * Q * sin(static_cast<double>(M_PI) * i / Q);
 }
 
+template void ComputeLifterCoeffs(BaseFloat Q, VectorBase<BaseFloat> *coeffs);
+template void ComputeLifterCoeffs(BaseFloat Q, VectorBase<double> *coeffs);
 
 // Durbin's recursion - converts autocorrelation coefficients to the LPC
 // pTmp - temporal place [n]

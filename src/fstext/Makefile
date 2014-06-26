@@ -20,36 +20,11 @@ TESTFILES = determinize-star-test \
 OBJFILES =  
 
 # actually, this library is currently empty.  Everything is a header.
-LIBFILE = 
-
-all: $(LIBFILE)
-
-$(LIBFILE): $(OBJFILES)
-	$(AR) -cru $(LIBFILE) $(OBJFILES)
-	$(RANLIB) $(LIBFILE)
+LIBNAME = 
 
 # tree and matrix archives needed for test-context-fst
-$(TESTFILES): $(LIBFILE)  ../tree/kaldi-tree.a ../matrix/kaldi-matrix.a ../base/kaldi-base.a ../util/kaldi-util.a
+ADDLIBS =  ../tree/kaldi-tree.a ../matrix/kaldi-matrix.a ../base/kaldi-base.a ../util/kaldi-util.a
 
-%.a:
-	$(MAKE) -C ${@D} ${@F}
+include ../makefiles/default_rules.mk
 
-clean:
-	-rm -f *.o *.a $(TESTFILES) tmp* *.tmp
-
-test_compile: $(TESTFILES)
-  
-test: test_compile
-	@result=0; for x in $(TESTFILES); do echo -n "Running $$x ..."; ./$$x >/dev/null 2>&1; if [ $$? -ne 0 ]; then echo "... FAIL"; result=1; else echo "... SUCCESS";  fi;  done; exit $$result
-
-.valgrind: $(TESTFILES)
-
-
-depend:
-	-$(CXX) -M $(CXXFLAGS) *.cc > .depend.mk  
-
-# removing automatic making of "depend" as it's quite slow.
-#.depend.mk: depend
-
--include .depend.mk
 

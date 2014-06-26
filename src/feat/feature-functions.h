@@ -43,9 +43,11 @@ struct MelBanksOptions {
   BaseFloat vtln_low;  // vtln lower cutoff of warping function.
   BaseFloat vtln_high;  // vtln upper cutoff of warping function: if negative, added
   // to the Nyquist frequency to get the cutoff.
+  bool use_power; // If true, use power spectrum, otherwise magnitude spectrum
   bool debug_mel;
   MelBanksOptions(int num_bins = 25): num_bins(num_bins), low_freq(20), high_freq(0),
-                                    vtln_low(400), vtln_high(-400), debug_mel(false) { }
+                                    vtln_low(400), vtln_high(-400), use_power(true),
+                                    debug_mel(false) { }
 
   void Register(ParseOptions *po) {
     po->Register("num-mel-bins", &num_bins, "Number of triangular mel-frequency bins");
@@ -53,6 +55,7 @@ struct MelBanksOptions {
     po->Register("high-freq", &high_freq, "High cutoff frequency for mel bins (if <= 0, offset from Nyquist)");
     po->Register("vtln-low", &vtln_low, "Low inflection point in piecewise linear VTLN warping function");
     po->Register("vtln-high", &vtln_high, "High inflection point in piecewise linear VTLN warping function (if negative, offset from high-mel-freq");
+    po->Register("use-power", &use_power, "If true, use power spectrum, otherwise magnitude spectrum");
     po->Register("debug-mel", &debug_mel, "Print out debugging information for mel bin computation");
   }
 };

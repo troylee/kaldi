@@ -221,13 +221,11 @@ is_set $MKLROOT && echo "Force-configuring KALDI to use MKL"&& export MATHLIB="M
 function linux_configure_cuda {
   #check for CUDA toolkit in the system
   if [ ! $CUDATKDIR ]; then
-    if [ -f /usr/local/share/cuda/bin/nvcc ]; then #BUT
-      CUDATKDIR=/usr/local/share/cuda/
-    elif [ -f /usr/local/cuda/bin/nvcc ]; then
-      CUDATKDIR=/usr/local/cuda/
-    elif [ -f /pkgs_local/cuda-3.2/bin/nvcc ]; then #CS.TORONTO
-      CUDATKDIR=/pkgs_local/cuda-3.2/ 
-    fi
+    for base in /usr/local/share/cuda /usr/local/cuda /pkgs_local/cuda-3.2/ /opt/nvidia_cuda/cuda-5.0/ /usr/; do
+      if [ -f $base/bin/nvcc ]; then
+        CUDATKDIR=$base
+      fi
+    done
   fi
 
   if [ $CUDATKDIR ]; then
@@ -241,12 +239,7 @@ function linux_configure_cuda {
     echo CUDATKDIR = $CUDATKDIR >> kaldi.mk
 
     if [ "`uname -m`" == "x86_64" ]; then
-      if [ "`hostname -d`" == "fit.vutbr.cz" ]; then
-        #BUT machines by default compile 32bits
-        cat makefiles/linux_cuda.mk >> kaldi.mk 
-      else
-        cat makefiles/linux_x86_64_cuda.mk >> kaldi.mk
-      fi
+      cat makefiles/linux_x86_64_cuda.mk >> kaldi.mk
     else
       cat makefiles/linux_cuda.mk >> kaldi.mk
     fi

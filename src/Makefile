@@ -7,7 +7,7 @@ SHELL := /bin/bash
 SUBDIRS = base matrix util feat tree gmm tied transform sgmm \
           fstext hmm lm decoder lat cudamatrix nnet nnet_cpu \
           bin fstbin gmmbin fgmmbin tiedbin sgmmbin featbin \
-          nnetbin nnetbin_cpu latbin sgmm2 sgmm2bin
+          nnetbin nnetbin_cpu latbin sgmm2 sgmm2bin vts vtsbin \
 
 # Optional subdirectories
 EXT_SUBDIRS = online onlinebin
@@ -59,7 +59,7 @@ $(EXT_SUBDIRS) :
 ### Dependency list ###
 # this is necessary for correct parallel compilation
 #1)The tools depend on all the libraries
-bin fstbin gmmbin fgmmbin tiedbin sgmmbin sgmm2bin featbin nnetbin nnetbin_cpu latbin: base matrix util feat tree optimization gmm tied transform sgmm sgmm2 fstext hmm lm decoder lat cudamatrix nnet nnet_cpu rnn
+bin fstbin gmmbin fgmmbin tiedbin sgmmbin sgmm2bin featbin nnetbin nnetbin_cpu latbin: base matrix util feat tree optimization gmm tied transform sgmm sgmm2 fstext hmm lm decoder lat cudamatrix nnet nnet_cpu rnn vts
 #2)The libraries have inter-dependencies
 base:
 matrix : base
@@ -85,3 +85,5 @@ rnn: base util matrix lat
 #3)Dependencies for optional parts of Kaldi
 onlinebin: base matrix util feat tree optimization gmm tied transform sgmm sgmm2 fstext hmm lm decoder lat cudamatrix nnet nnet_cpu rnn online
 online: decoder
+vtsbin: base matrix util feat tree optimization gmm transform sgmm sgmm2 fstext hmm lm decoder lat cudamatrix nnet nnet_cpu vts
+vts: base util matrix tree gmm
