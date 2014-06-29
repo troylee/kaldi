@@ -32,7 +32,6 @@ egs/aurora4/n00/log/
 
 # /tools/
 tools/ATLAS/
-tools/CLAPACK_include/
 tools/atlas3.10.0.tar.bz2
 #tools/atlas3.8.3.tar.gz
 tools/irstlm/
@@ -47,7 +46,8 @@ tools/pa_stable_v19_20111121.tgz
 tools/portaudio/
 #tools/sctk-2.4.0-20091110-0958.tar.bz2
 tools/sctk-2.4.0/
-tools/sph2pipe_v2.5.tar.gz
+tools/sctk_patched
+#tools/sph2pipe_v2.5.tar.gz
 tools/sph2pipe_v2.5/
 
 # /src/

@@ -486,8 +486,8 @@ fi
 
 if [ "`uname -o`" == "Cygwin"  ]; then
     echo "On Cygwin: checking for linear algebra libraries ..."
-    if [ ! -f ../tools/CLAPACK_include/clapack.h ]; then
-        failure "could not find file ../tools/CLAPACK_include/clapack.h: you may not have performed the install steps in ../tools/INSTALL,  step 7"
+    if [ ! -f ../tools/CLAPACK/clapack.h ]; then
+        failure "could not find file ../tools/CLAPACK/clapack.h: you may not have performed the install steps in ../tools/INSTALL,  step 7"
     fi
     if [ ! -f /usr/lib/lapack/cygblas-0.dll ]; then
        failure "please first install package liblapack0"
@@ -590,8 +590,8 @@ if [ "`uname`" == "Linux" ]; then
     if [ -z $CLAPACKROOT ]; then
       failure "Must specify the location of CLAPACK with --clapack-root option"
     fi
-    if [ ! -f ../tools/CLAPACK_include/clapack.h ]; then
-      failure could not find file ../tools/CLAPACK_include/clapack.h: you may not have performed the install steps in ../tools/INSTALL,  step 7
+    if [ ! -f ../tools/CLAPACK/clapack.h ]; then
+      failure could not find file ../tools/CLAPACK/clapack.h: you may not have performed the install steps in ../tools/INSTALL,  step 7
     fi
     # Also check for cblas.h and f2c.h
 
