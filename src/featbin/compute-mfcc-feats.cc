@@ -39,6 +39,10 @@ int main(int argc, char *argv[]) {
     BaseFloat min_duration = 0.0;
     // Define defaults for gobal options
     std::string output_format = "kaldi";
+    // scale the waveform signals to peak at a specified value
+    // This is to mimic the VOICEBOX's writewav function's default 's' option.
+    bool adjust_wav_peak = false;
+    BaseFloat wav_peak_value = 1;
 
     // Register the MFCC option struct
     mfcc_opts.Register(&po);
@@ -51,6 +55,8 @@ int main(int argc, char *argv[]) {
     po.Register("utt2spk", &utt2spk_rspecifier, "Utterance to speaker-id map (if doing VTLN and you have warps per speaker)");
     po.Register("channel", &channel, "Channel to extract (-1 -> expect mono, 0 -> left, 1 -> right)");
     po.Register("min-duration", &min_duration, "Minimum duration of segments to process (in seconds).");
+    po.Register("adjust_wav_peak", &adjust_wav_peak, "Whether to scale waveform signals to peak at a specified value");
+    po.Register("wav_peak_value", &wav_peak_value, "The desired waveform peak value.");
 
     // OPTION PARSING ..........................................................
     //
@@ -151,6 +157,20 @@ int main(int argc, char *argv[]) {
                   << wave_data.SampFreq() << " (use --sample-frequency option)";
 
       SubVector<BaseFloat> waveform(wave_data.Data(), this_chan);
+
+      if(adjust_wav_peak){
+        BaseFloat wmax = waveform.Max(), wmin = waveform.Min(), scale = 1.0;
+        if(wmax < 0) wmax = -wmax;
+        if(wmin < 0) wmin = -wmin;
+        if(wmax > wmin){
+          scale = wav_peak_value / wmax;
+        }else{
+          scale = wav_peak_value / wmin;
+        }
+        waveform.Scale(scale);
+        waveform.Round();
+      }
+
       Matrix<BaseFloat> features;
       try {
         mfcc.Compute(waveform, vtln_warp_local, &features, NULL);

@@ -129,6 +129,9 @@ class VectorBase {
   /// Take all  elements of vector to a power.
   void ApplyPow(Real power);
 
+  /// Round the value to the nearest integer.
+  void Round();
+
   /// Compute the p-th norm of the vector.
   Real Norm(Real p) const;
 

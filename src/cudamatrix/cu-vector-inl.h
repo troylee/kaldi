@@ -305,6 +305,29 @@ void CuVector<Real>::Power(Real power) {
 }
 
 template<typename Real>
+void CuVector<Real>::Round() {
+  #if HAVE_CUDA==1
+  if (CuDevice::Instantiate().Enabled()) {
+    Timer tim;
+
+    dim3 dimBlock(CUBLOCK);
+    dim3 dimGrid(n_blocks(Dim(), CUBLOCK));
+    ::MatrixDim d = { 1, Dim(), Dim() };
+
+    cuda_round(dimGrid, dimBlock, data_, d);
+    cuSafeCall(cudaGetLastError());
+
+    CuDevice::Instantiate().AccuProfile(__func__, tim.Elapsed());
+  } else
+  #endif
+  {
+    vec_.Round();
+  }
+}
+
+
+
+template<typename Real>
 void CuVector<Real>::ApplyLog() {
   #if HAVE_CUDA==1
   if (CuDevice::Instantiate().Enabled()) {
