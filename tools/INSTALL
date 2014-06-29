@@ -1,5 +1,6 @@
 To install the prerequisites for Kaldi, try running
- ./install.sh
+make -j 4
+# ./install.sh
 It tries to install various things, and it will tell you at the
 end whether each item succeeded or failed.
 If you get warnings that certain things failed to install but
