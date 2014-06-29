@@ -45,6 +45,7 @@ template<typename Real> inline void cuda_set_const(dim3 Gr, dim3 Bl, Real *mat, 
 template<typename Real> inline void cuda_binarize(dim3 Gr, dim3 Bl, Real *mat, Real thres, MatrixDim d) { KALDI_ERR << __func__ << " Not implemented!"; }
 template<typename Real> inline void cuda_add_const(dim3 Gr, dim3 Bl, Real *mat, Real value, MatrixDim d) { KALDI_ERR << __func__ << " Not implemented!"; }
 template<typename Real> inline void cuda_power(dim3 Gr, dim3 Bl, Real *mat, Real pow, MatrixDim d) { KALDI_ERR << __func__ << " Not implemented!"; }
+template<typename Real> inline void cuda_round(dim3 Gr, dim3 Bl, Real *mat, MatrixDim d) { KALDI_ERR << __func__ << " Not implemented!"; }
 template<typename Real> inline void cuda_scale(dim3 Gr, dim3 Bl, Real *mat, Real value, MatrixDim d) { KALDI_ERR << __func__ << " Not implemented!"; }
 template<typename Real> inline void cuda_apply_floor(dim3 Gr, dim3 Bl, Real *mat, Real value, MatrixDim d) { KALDI_ERR << __func__ << " Not implemented!"; }
 template<typename Real> inline void cuda_apply_truncate(dim3 Gr, dim3 Bl, Real *mat, Real low, Real high, MatrixDim d) { KALDI_ERR << __func__ << " Not implemented!"; }
@@ -106,6 +107,7 @@ template<> inline void cuda_set_const<float>(dim3 Gr, dim3 Bl, float *mat, float
 template<> inline void cuda_binarize<float>(dim3 Gr, dim3 Bl, float *mat, float thres, MatrixDim d) {cudaF_binarize(Gr,Bl,mat,thres,d); }
 template<> inline void cuda_add_const<float>(dim3 Gr, dim3 Bl, float *mat, float value, MatrixDim d) { cudaF_add_const(Gr,Bl,mat,value,d); }
 template<> inline void cuda_power<float>(dim3 Gr, dim3 Bl, float *mat, float pow, MatrixDim d) { cudaF_power(Gr,Bl,mat,pow,d); }
+template<> inline void cuda_round<float>(dim3 Gr, dim3 Bl, float *mat, MatrixDim d) { cudaF_round(Gr,Bl,mat,d); }
 template<> inline void cuda_scale<float>(dim3 Gr, dim3 Bl, float *mat, float value, MatrixDim d) { cudaF_scale(Gr,Bl,mat,value,d); }
 template<> inline void cuda_apply_floor<float>(dim3 Gr, dim3 Bl, float *mat, float value, MatrixDim d) { cudaF_apply_floor(Gr,Bl,mat,value,d); }
 template<> inline void cuda_apply_truncate<float>(dim3 Gr, dim3 Bl, float *mat, float low, float high, MatrixDim d) { cudaF_apply_truncate(Gr,Bl,mat,low,high,d); }
@@ -165,6 +167,7 @@ template<> inline void cuda_set_const<double>(dim3 Gr, dim3 Bl, double *mat, dou
 template<> inline void cuda_binarize<double>(dim3 Gr, dim3 Bl, double *mat, double thres, MatrixDim d) { cudaD_binarize(Gr,Bl,mat,thres,d); }
 template<> inline void cuda_add_const<double>(dim3 Gr, dim3 Bl, double *mat, double value, MatrixDim d) { cudaD_add_const(Gr,Bl,mat,value,d); }
 template<> inline void cuda_power<double>(dim3 Gr, dim3 Bl, double *mat, double pow, MatrixDim d) { cudaD_power(Gr,Bl,mat,pow,d); }
+template<> inline void cuda_round<double>(dim3 Gr, dim3 Bl, double *mat, MatrixDim d) { cudaD_round(Gr,Bl,mat,d); }
 template<> inline void cuda_scale<double>(dim3 Gr, dim3 Bl, double *mat, double value, MatrixDim d) { cudaD_scale(Gr,Bl,mat,value,d); }
 template<> inline void cuda_apply_floor<double>(dim3 Gr, dim3 Bl, double *mat, double value, MatrixDim d) { cudaD_apply_floor(Gr,Bl,mat,value,d); }
 template<> inline void cuda_apply_truncate<double>(dim3 Gr, dim3 Bl, double *mat, double low, double high, MatrixDim d) { cudaD_apply_truncate(Gr,Bl,mat,low,high,d); }

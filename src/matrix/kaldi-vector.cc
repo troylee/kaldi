@@ -438,6 +438,19 @@ void VectorBase<Real>::ApplyPow(Real power) {
   }
 }
 
+// round each element to the nearest integer
+template<>
+void VectorBase<double>::Round() {
+  for (MatrixIndexT i = 0; i < dim_; i++)
+    data_[i] = round(data_[i]);
+}
+
+template<>
+void VectorBase<float>::Round() {
+  for (MatrixIndexT i = 0; i < dim_; i++)
+    data_[i] = roundf(data_[i]);
+}
+
 // Computes the p-th norm. Throws exception if could not.
 template<typename Real>
 Real VectorBase<Real>::Norm(Real p) const {

@@ -81,6 +81,8 @@ class CuVector {
   void Add(Real value);
   void Scale(Real value);
   void Power(Real pow);
+  /// Round the value to the nearest integer, still in float format
+  void Round();
   void ApplyLog();
   void ApplyExp();
   /// set all the elements smaller than value to value
