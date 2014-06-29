@@ -20,17 +20,15 @@
 *.a
 
 # /egs/
-egs/aurora4/m00/data/
-egs/aurora4/m00/exp/
-egs/aurora4/m00/log/
-egs/aurora4/n00/data/
-egs/aurora4/n00/feat/
-egs/aurora4/n00/exp/
-egs/aurora4/n00/exp_multi/
-egs/aurora4/n00/exp_clean/
-egs/aurora4/n00/log/
+egs/aurora4/a00/data/
+egs/aurora4/a00/feat/
+egs/aurora4/a00/exp/
+egs/aurora4/a00/exp_multi/
+egs/aurora4/a00/exp_clean/
+egs/aurora4/a00/log/
 
 # /tools/
+tools_new/
 tools/ATLAS/
 tools/CLAPACK_include/
 tools/atlas3.10.0.tar.bz2
