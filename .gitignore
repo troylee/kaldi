@@ -29,6 +29,7 @@ egs/aurora4/a00/log/
 
 # /tools/
 tools_new/
+tools/.patched
 tools/ATLAS/
 tools/atlas3.10.0.tar.bz2
 #tools/atlas3.8.3.tar.gz

@@ -37,19 +37,19 @@ wsj0=/media/research/corpus/WSJ0
 
 prepare_basic(){
   log_start "data preparation"
-#  local/prep_data.sh $aurora4 $wsj0
+  local/prep_data.sh $aurora4 $wsj0
   log_end "data preparation"
 
   log_start "dictionary preparation"
-#  local/prep_dict.sh || exit 1;
+  local/prep_dict.sh || exit 1;
   log_end "dictionary preparation"
 
   log_start "lang preparation"
-#  utils/prepare_lang.sh --position-dependent-phones false data/local/dict "<SPOKEN_NOISE>" data/local/lang_tmp data/lang || exit 1;
+  utils/prepare_lang.sh --position-dependent-phones false data/local/dict "<SPOKEN_NOISE>" data/local/lang_tmp data/lang || exit 1;
   log_end "lang preparation"
 
   log_start "format data"
-#  local/prep_testlm.sh || exit 1;
+  local/prep_testlm.sh || exit 1;
   log_end "format_data"
 
   # Now make MFCC features.
@@ -58,14 +58,14 @@ prepare_basic(){
   log_start "MFCC extraction"
   mfccdir=feat/mfcc
   mkdir -p $mfccdir
-#  for x in train_clean train_multi dev_clean dev_multi dev{01..14} test{01..14} ; do 
-#    if [ -d $mfccdir/$x ]; then
-#      rm -r $mfccdir/$x
-#    fi
-#    cp -r data/$x $mfccdir/$x
-#    steps/make_mfcc.sh --nj 1 $mfccdir/$x exp/make_mfcc/$x $mfccdir/params || exit 1;
-#    steps/compute_cmvn_utt_stats.sh $mfccdir/$x exp/make_mfcc/$x $mfccdir/params || exit 1;
-#  done
+  for x in train_clean train_multi dev_clean dev_multi dev{01..14} test{01..14} ; do 
+    if [ -d $mfccdir/$x ]; then
+      rm -r $mfccdir/$x
+    fi
+    cp -r data/$x $mfccdir/$x
+    steps/make_mfcc.sh --nj 1 $mfccdir/$x exp/make_mfcc/$x $mfccdir/params || exit 1;
+    steps/compute_cmvn_utt_stats.sh $mfccdir/$x exp/make_mfcc/$x $mfccdir/params || exit 1;
+  done
   log_end "MFCC extraction"
 
   # make fbank features
