@@ -157,11 +157,6 @@ int main(int argc, char *argv[]) {
 
       SubVector<BaseFloat> waveform(wave_data.Data(), this_chan);
 
-      {
-        Output ko("wav_before.txt", false);
-        waveform.Write(ko.Stream(), false);
-      }
-
       if(adjust_wav_peak){
         BaseFloat wmax = waveform.Max(), wmin = waveform.Min(), scale = 1.0;
         if(wmax < 0) wmax = -wmax;
@@ -173,11 +168,6 @@ int main(int argc, char *argv[]) {
         }
         waveform.Scale(scale);
         waveform.Round();
-      }
-
-      {
-        Output ko("wav_after.txt", false);
-        waveform.Write(ko.Stream(), false);
       }
 
       Matrix<BaseFloat> features;
