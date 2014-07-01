@@ -82,6 +82,5 @@ prepare_basic(){
   done
   log_end "FBank extraction"
 }
-prepare_basic
-
+#prepare_basic
 
