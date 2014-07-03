@@ -45,8 +45,8 @@ echo "$0 $@" # Print the command linke for logging
 . parse_options.sh || exit 1;
 
 if [ $# != 2 ]; then
-  echo "Usage: steps/train_dbn.sh <data-dir> <exp-dir>"
-  echo "e.g.: steps/train_dbn.sh data/train_multi exp_multi/rbm1a"
+  echo "Usage: steps/pretrain_dnn.sh <data-dir> <exp-dir>"
+  echo "e.g.: steps/pretrain_dnn.sh data/train_multi exp_multi/rbm1a"
   echo "main options (for other, see top of script file)"
   echo "  --cmd (utils/run.pl|utils/queue.pl <queue opts>) # how to run jobs."
   echo "  --config <config-file>                           # config containing options"
