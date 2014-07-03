@@ -68,20 +68,20 @@ decode_multi_tri1a(){
 align_multi_tri1a(){
   # align multi-style data with multi-trained model, needs a larger beam
   log_start "tri1a [align-train-multi]"
-  steps/align_si.sh --nj 4 --retry-beam 60 feat/mfcc/train_multi data/lang exp_multi/tri1a exp_multi/tri1a_ali/train_multi || exit 1;
+  steps/align_si.sh --nj 4 --retry-beam 200 feat/mfcc/train_multi data/lang exp_multi/tri1a exp_multi/tri1a_ali/train_multi || exit 1;
   log_end "tri1a [align-train-multi]"
 
   log_start "tri1a [align-dev-multi]"
-  steps/align_si.sh --nj 4 --retry-beam 80 feat/mfcc/dev_multi data/lang exp_multi/tri1a exp_multi/tri1a_ali/dev_multi || exit 1;
+  steps/align_si.sh --nj 4 --retry-beam 200 feat/mfcc/dev_multi data/lang exp_multi/tri1a exp_multi/tri1a_ali/dev_multi || exit 1;
   log_end "tri1a [align-dev-multi]"
 
   # align clean data with multi-trained model
   log_start "tri1a [align-train-clean]"
-  steps/align_si.sh --nj 4 feat/mfcc/train_clean data/lang exp_multi/tri1a exp_multi/tri1a_ali/train_clean || exit 1;
+  steps/align_si.sh --nj 4 --retry-beam 200 feat/mfcc/train_clean data/lang exp_multi/tri1a exp_multi/tri1a_ali/train_clean || exit 1;
   log_end "tri1a [align-train-clean]"
 
   log_start "tri1a [align-dev-clean]"
-  steps/align_si.sh --nj 4 feat/mfcc/dev_clean data/lang exp_multi/tri1a exp_multi/tri1a_ali/dev_clean || exit 1;
+  steps/align_si.sh --nj 4 --retry-beam 200 feat/mfcc/dev_clean data/lang exp_multi/tri1a exp_multi/tri1a_ali/dev_clean || exit 1;
   log_end "tri1a [align-dev-clean]"
 
   # additional processing of the clean data alignments for used as multi labels
@@ -112,4 +112,18 @@ train_multi_spr_tri1b(){
   log_end "tri1b [train]"
 }
 #train_multi_spr_tri1b
+
+###############################################
+#Now begin train DNN systems on multi data
+
+pretrain(){
+  #RBM pretrain
+  log_start "rbm1a [pretrain]"
+  dir=exp_multi/rbm1a_dnn_pretrain
+  mkdir -p $dir/log
+  steps/train_dbn.sh --nn-depth 7 --norm-vars true --splice 5 feat/fbank/train_multi $dir
+  log_end "rbm1a [pretrain]"
+}
+pretrain
+
 
