@@ -51,7 +51,7 @@ train_clean_tri1a(){
   utils/mkgraph.sh data/lang_bcb05cnp exp_clean/tri1a exp_clean/tri1a/graph_bg || exit 1;
   log_end "tri1a [train]"
 }
-train_clean_tri1a
+#train_clean_tri1a
 
 decode_clean_tri1a(){
   log_start "tri1a [decode]"
@@ -69,7 +69,7 @@ decode_clean_tri1a(){
 align_clean_tri1a(){
   # align clean data with clean-trained model
   log_start "tri1a [align-train]"
-  steps/align_si.sh --nj 4 feat/mfcc/train_clean data/lang exp_clean/tri1a exp_clean/tri1a_ali/train_clean || exit 1;
+  steps/align_si.sh --nj 4 --retry-beam 200 feat/mfcc/train_clean data/lang exp_clean/tri1a exp_clean/tri1a_ali/train_clean || exit 1;
   log_end "tri1a [align-train]"
 }
 align_clean_tri1a

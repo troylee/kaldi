@@ -68,20 +68,20 @@ decode_multi_tri1a(){
 align_multi_tri1a(){
   # align multi-style data with multi-trained model, needs a larger beam
   log_start "tri1a [align-train-multi]"
-  steps/align_si.sh --nj 4 --retry-beam 60 feat/mfcc/train_multi data/lang exp_multi/tri1a exp_multi/tri1a_ali/train_multi || exit 1;
+  steps/align_si.sh --nj 4 --retry-beam 200 feat/mfcc/train_multi data/lang exp_multi/tri1a exp_multi/tri1a_ali/train_multi || exit 1;
   log_end "tri1a [align-train-multi]"
 
   log_start "tri1a [align-dev-multi]"
-  steps/align_si.sh --nj 4 --retry-beam 80 feat/mfcc/dev_multi data/lang exp_multi/tri1a exp_multi/tri1a_ali/dev_multi || exit 1;
+  steps/align_si.sh --nj 4 --retry-beam 200 feat/mfcc/dev_multi data/lang exp_multi/tri1a exp_multi/tri1a_ali/dev_multi || exit 1;
   log_end "tri1a [align-dev-multi]"
 
   # align clean data with multi-trained model
   log_start "tri1a [align-train-clean]"
-  steps/align_si.sh --nj 4 feat/mfcc/train_clean data/lang exp_multi/tri1a exp_multi/tri1a_ali/train_clean || exit 1;
+  steps/align_si.sh --nj 4 --retry-beam 200 feat/mfcc/train_clean data/lang exp_multi/tri1a exp_multi/tri1a_ali/train_clean || exit 1;
   log_end "tri1a [align-train-clean]"
 
   log_start "tri1a [align-dev-clean]"
-  steps/align_si.sh --nj 4 feat/mfcc/dev_clean data/lang exp_multi/tri1a exp_multi/tri1a_ali/dev_clean || exit 1;
+  steps/align_si.sh --nj 4 --retry-beam 200 feat/mfcc/dev_clean data/lang exp_multi/tri1a exp_multi/tri1a_ali/dev_clean || exit 1;
   log_end "tri1a [align-dev-clean]"
 
   # additional processing of the clean data alignments for used as multi labels
@@ -103,7 +103,7 @@ align_multi_tri1a(){
   ./utils/alignment_frame_checking.sh exp_multi/tri1a_ali/train_clean/ exp_multi/tri1a_ali/train_multi/
   ./utils/alignment_frame_checking.sh exp_multi/tri1a_ali/dev_clean/ exp_multi/tri1a_ali/dev_multi/
 }
-#align_multi_tri1a
+align_multi_tri1a
 
 train_multi_spr_tri1b(){
   log_start "tri1b [train]"
@@ -111,5 +111,5 @@ train_multi_spr_tri1b(){
   utils/mkgraph.sh data/lang_bcb05cnp exp_multi/tri1b exp_multi/tri1b/graph_bg || exit 1;
   log_end "tri1b [train]"
 }
-#train_multi_spr_tri1b
+train_multi_spr_tri1b
 
