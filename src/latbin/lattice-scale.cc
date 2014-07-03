@@ -36,11 +36,13 @@ int main(int argc, char *argv[]) {
         " e.g.: lattice-scale --lm-scale=0.0 ark:1.lats ark:scaled.lats\n";
       
     ParseOptions po(usage);
+    BaseFloat inv_acoustic_scale = 1.0;
     BaseFloat acoustic_scale = 1.0;
     BaseFloat lm_scale = 1.0;
     BaseFloat acoustic2lm_scale = 0.0;
     BaseFloat lm2acoustic_scale = 0.0;
     
+    po.Register("inv-acoustic-scale", &inv_acoustic_scale, "Inverse scaling factor for acoustic likelihoods");
     po.Register("acoustic-scale", &acoustic_scale, "Scaling factor for acoustic likelihoods");
     po.Register("lm-scale", &lm_scale, "Scaling factor for graph/lm costs");
     po.Register("acoustic2lm-scale", &acoustic2lm_scale, "Add this times original acoustic costs to LM costs");
@@ -62,6 +64,10 @@ int main(int argc, char *argv[]) {
     CompactLatticeWriter compact_lattice_writer(lats_wspecifier); 
 
     int32 n_done = 0; 
+
+    KALDI_ASSERT(acoustic_scale == 1.0 || inv_acoustic_scale == 1.0);
+    if (inv_acoustic_scale != 1.0)
+      acoustic_scale = 1.0 / inv_acoustic_scale;
 
     std::vector<std::vector<double> > scale(2);
     scale[0].resize(2);

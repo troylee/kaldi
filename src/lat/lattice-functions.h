@@ -136,7 +136,10 @@ bool CompactLatticeToWordAlignment(const CompactLattice &clat,
                                    std::vector<int32> *begin_times,
                                    std::vector<int32> *lengths);
                                    
-
+/// This function add the word insertion penalty to graph score of each word
+/// in the compact lattice
+void AddWordInsPenToCompactLattice(BaseFloat word_ins_penalty,
+                                   CompactLattice *clat);
 }  // namespace kaldi
 
 #endif  // KALDI_LAT_LATTICE_FUNCTIONS_H_
