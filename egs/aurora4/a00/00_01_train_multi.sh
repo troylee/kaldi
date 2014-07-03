@@ -118,11 +118,11 @@ train_multi_spr_tri1b(){
 
 pretrain(){
   #RBM pretrain
-  log_start "rbm1a [pretrain]"
-  dir=exp_multi/rbm1a_dnn_pretrain
+  log_start "dnn1a [pretrain]"
+  dir=exp_multi/dnn1a_dnn_pretrain
   mkdir -p $dir/log
-  steps/train_dbn.sh --nn-depth 7 --norm-vars true --splice 5 feat/fbank/train_multi $dir
-  log_end "rbm1a [pretrain]"
+  steps/pretrain_dnn.sh --nn-depth 7 --norm-vars true --splice 5 feat/fbank/train_multi $dir
+  log_end "dnn1a [pretrain]"
 }
 pretrain
 
