@@ -44,9 +44,9 @@ echo "$0 $@" # Print the command linke for logging
 [ -f path.sh ] && . ./path.sh;
 . parse_options.sh || exit 1;
 
-if [ $# != 3 ]; then
-  echo "Usage: steps/train_rbm.sh <data-dir> <lang-dir> <exp-dir>"
-  echo "e.g.: steps/train_rbm.sh data/train_multi data/lang exp_multi/rbm1a"
+if [ $# != 2 ]; then
+  echo "Usage: steps/train_dbn.sh <data-dir> <exp-dir>"
+  echo "e.g.: steps/train_dbn.sh data/train_multi exp_multi/rbm1a"
   echo "main options (for other, see top of script file)"
   echo "  --cmd (utils/run.pl|utils/queue.pl <queue opts>) # how to run jobs."
   echo "  --config <config-file>                           # config containing options"
@@ -55,8 +55,7 @@ if [ $# != 3 ]; then
 fi
 
 data=$1
-lang=$2
-dir=$3
+dir=$2
 
 mkdir -p $dir/{log,nnet}
 
@@ -75,7 +74,7 @@ cat ${data}/feats.scp | utils/shuffle_list.pl --srand ${seed:-777} > $dir/train.
 # print the list sizes
 wc -l $dir/train.scp 
 
-feats="ark:add-deltas --delta-order=2 --delta-window=3 scp:$dir/train.scp ark:- | apply-cmvn $--norm-vars=$norm_vars scp:${data}/cmvn_0_d_a.utt.scp ark:- ark:- |"
+feats="ark:add-deltas --delta-order=2 --delta-window=3 scp:$dir/train.scp ark:- | apply-cmvn --norm-vars=$norm_vars scp:${data}/cmvn_0_d_a.utt.scp ark:- ark:- |"
 # keep track of norm_vars option
 echo "$norm_vars" >$dir/norm_vars
 
@@ -89,19 +88,19 @@ feat_dim=$(feat-to-dim --print-args=false "$feats" -)
 echo "Feature dim is : $feat_dim"
 
 #get the DNN dimensions
-num_fea=$((fea_dim*(2*splice+1)))
+num_fea=$feat_dim
 num_hid=$nn_dimhid
 
 [ -z $start_layer ] && start_layer=1
 if [ ${start_layer} -gt 1 ]; then
   for depth in $(seq -f '%02g' 1 $((start_layer-1))); do
-    TRANSF=$dir/nnet/hid${depth}c_transf
+    TRANSF=$dir/hid${depth}c_transf
   done
 fi
 ###### PERFORM THE PRE-TRAINING ######
 for depth in $(seq -f '%02g' $start_layer $nn_depth); do
   echo "%%%%%%% PRE-TRAINING DEPTH $depth"
-  RBM=$dir/nnet/hid${depth}_rbm/nnet/hid${depth}_rbm
+  RBM=$dir/hid${depth}_rbm/nnet/hid${depth}_rbm
   mkdir -p $(dirname $RBM); mkdir -p $(dirname $RBM)/../log
   echo "Pre-training RBM $RBM "
   #The first RBM needs special treatment, because of Gussian input nodes

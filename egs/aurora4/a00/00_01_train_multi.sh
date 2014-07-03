@@ -103,7 +103,7 @@ align_multi_tri1a(){
   ./utils/alignment_frame_checking.sh exp_multi/tri1a_ali/train_clean/ exp_multi/tri1a_ali/train_multi/
   ./utils/alignment_frame_checking.sh exp_multi/tri1a_ali/dev_clean/ exp_multi/tri1a_ali/dev_multi/
 }
-align_multi_tri1a
+#align_multi_tri1a
 
 train_multi_spr_tri1b(){
   log_start "tri1b [train]"
@@ -111,5 +111,19 @@ train_multi_spr_tri1b(){
   utils/mkgraph.sh data/lang_bcb05cnp exp_multi/tri1b exp_multi/tri1b/graph_bg || exit 1;
   log_end "tri1b [train]"
 }
-train_multi_spr_tri1b
+#train_multi_spr_tri1b
+
+###############################################
+#Now begin train DNN systems on multi data
+
+pretrain(){
+  #RBM pretrain
+  log_start "rbm1a [pretrain]"
+  dir=exp_multi/rbm1a_dnn_pretrain
+  mkdir -p $dir/log
+  steps/train_dbn.sh --nn-depth 7 --norm-vars true --splice 5 feat/fbank/train_multi $dir
+  log_end "rbm1a [pretrain]"
+}
+pretrain
+
 
