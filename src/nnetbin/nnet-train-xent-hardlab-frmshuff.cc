@@ -29,9 +29,9 @@ int main(int argc, char *argv[]) {
   try {
     const char *usage =
         "Perform iteration of Neural Network training by stochastic gradient descent.\n"
-        "Usage:  nnet-train-xent-hardlab-frmshuff [options] <model-in> <feature-rspecifier> <alignments-rspecifier> [<model-out>]\n"
+        "Usage:  nnet-train-xent-hardlab-frmshuff [options] <feature-rspecifier> <alignments-rspecifier> <model-in> [<model-out>]\n"
         "e.g.: \n"
-        " nnet-train-xent-hardlab-perutt nnet.init scp:train.scp ark:train.ali nnet.iter1\n";
+        " nnet-train-xent-hardlab-perutt scp:train.scp ark:train.ali nnet.init nnet.iter1\n";
 
     ParseOptions po(usage);
     bool binary = false, 
@@ -71,9 +71,9 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
 
-    std::string model_filename = po.GetArg(1),
-        feature_rspecifier = po.GetArg(2),
-        alignments_rspecifier = po.GetArg(3);
+    std::string feature_rspecifier = po.GetArg(1),
+        alignments_rspecifier = po.GetArg(2),
+        model_filename = po.GetArg(3);
         
     std::string target_model_filename;
     if (!crossvalidate) {

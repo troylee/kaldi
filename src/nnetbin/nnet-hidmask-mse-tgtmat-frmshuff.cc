@@ -19,10 +19,10 @@ int main(int argc, char *argv[]) {
   try {
     const char *usage =
         "Perform iteration of Neural Network training by stochastic gradient descent.\n"
-            "Usage:  nnet-train-mse-tgtmat-frmshuff [options] <model-in> <frontend-model-in>"
-            " <noisy-feature-rspecifier> <clean-feature-rspecifier> [<model-out>]\n"
+            "Usage:  nnet-train-mse-tgtmat-frmshuff [options] <frontend-model-in>"
+            " <noisy-feature-rspecifier> <clean-feature-rspecifier> <model-in> [<model-out>]\n"
             "e.g.: \n"
-            " nnet-train-mse-tgtmat-frmshuff nnet.init scp:train.scp ark:targets.scp nnet.iter1\n";
+            " nnet-train-mse-tgtmat-frmshuff front.nnet scp:train.scp ark:targets.scp nnet.init nnet.iter1\n";
 
     ParseOptions po(usage);
 
@@ -79,10 +79,10 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
 
-    std::string model_filename = po.GetArg(1),
-        frontend_model_filename = po.GetArg(2),
-        noisyfeats_rspecifier = po.GetArg(3),
-        cleanfeats_rspecifier = po.GetArg(4);
+    std::string frontend_model_filename = po.GetArg(1),
+        noisyfeats_rspecifier = po.GetArg(2),
+        cleanfeats_rspecifier = po.GetArg(3),
+        model_filename = po.GetArg(4);
 
     std::string target_model_filename;
     if (!crossvalidate) {
