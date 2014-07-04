@@ -59,6 +59,7 @@ class RbmBase : public UpdatableComponent {
   virtual void WriteAsNnet(std::ostream& os, bool binary) const = 0;
   virtual void WriteAsAutoEncoder(std::ostream& os, bool isEncoder,
                                   bool binary) const = 0;
+
 };
 
 class Rbm : public RbmBase {
@@ -285,6 +286,34 @@ class Rbm : public RbmBase {
       }
       if(!binary) os << "\n";
     }
+  }
+
+  void SetWeight(const Matrix<BaseFloat> &mat){
+    vis_hid_.CopyFromMat(mat);
+  }
+
+  void GetWeight(Matrix<BaseFloat> *mat){
+    vis_hid_.CopyToMat(mat);
+  }
+
+  void GetWeight(CuMatrix<BaseFloat> *mat){
+    mat->CopyFromMat(vis_hid_);
+  }
+
+  void GetVisibleBias(Vector<BaseFloat> *vec){
+    vis_bias_.CopyToVec(vec);
+  }
+
+  void SetVisibleBias(const Vector<BaseFloat> &vec){
+    vis_bias_.CopyFromVec(vec);
+  }
+
+  void GetHiddenBias(Vector<BaseFloat> *vec){
+    hid_bias_.CopyToVec(vec);
+  }
+
+  void SetHiddenBias(const Vector<BaseFloat> &vec){
+    hid_bias_.CopyFromVec(vec);
   }
 
 protected:
