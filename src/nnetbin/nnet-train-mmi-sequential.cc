@@ -85,9 +85,10 @@ int main(int argc, char *argv[]) {
   try {
     const char *usage =
         "Perform iteration of Neural Network MMI training by stochastic gradient descent.\n"
-        "Usage:  nnet-train-mmi-sequential [options] <model-in> <transition-model-in> <feature-rspecifier> <den-lat-rspecifier> <num-pdf-ali-rspecifier> [<model-out>]\n"
+        "Usage:  nnet-train-mmi-sequential [options] <transition-model-in> <feature-rspecifier>"
+        " <den-lat-rspecifier> <num-pdf-ali-rspecifier> <model-in> [<model-out>]\n"
         "e.g.: \n"
-        " nnet-train-xent-hardlab-perutt nnet.init scp:train.scp scp:denlats.scp ark:train.ali nnet.iter1\n";
+        " nnet-train-xent-hardlab-perutt scp:train.scp scp:denlats.scp ark:train.ali nnet.init nnet.iter1\n";
 
     ParseOptions po(usage);
     bool binary = false, 
@@ -124,11 +125,11 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
 
-    std::string model_filename = po.GetArg(1),
-        transition_model_filename = po.GetArg(2),
-        feature_rspecifier = po.GetArg(3),
-        den_lat_rspecifier = po.GetArg(4),
-        num_ali_rspecifier = po.GetArg(5);
+    std::string transition_model_filename = po.GetArg(1),
+        feature_rspecifier = po.GetArg(2),
+        den_lat_rspecifier = po.GetArg(3),
+        num_ali_rspecifier = po.GetArg(4),
+        model_filename = po.GetArg(5);
         
     std::string target_model_filename;
     if (!crossvalidate) {

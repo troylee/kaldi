@@ -20,12 +20,12 @@ int main(int argc, char *argv[]) {
   try {
     const char *usage =
         "Perform iteration of Neural Network training by stochastic gradient descent.\n"
-            "Usage: nnet-hidmask-train-frmshuff [options] <frontend-model-in> <backend-model-in>"
+            "Usage: nnet-hidmask-train-frmshuff [options] "
             " <noisy-feature-rspecifier> <clean-feature-rspecifier> <alignments-rspecifier> "
-            "[<frontend-model-in> <backend-model-out>]\n"
+            "<frontend-model-in> <backend-model-in> [<frontend-model-in> <backend-model-out>]\n"
             "e.g.: \n "
-            " nnet-hidmask-train-frmshuff front.nnet back.nnet scp:train_noisy.scp scp:train_clean.scp "
-            "ark:train.ali front.iter1 back.iter1\n";
+            " nnet-hidmask-train-frmshuff scp:train_noisy.scp scp:train_clean.scp "
+            "ark:train.ali front.nnet back.nnet front.iter1 back.iter1\n";
 
     ParseOptions po(usage);
     bool binary = false,
@@ -82,11 +82,11 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
 
-    std::string model_frontend_filename = po.GetArg(1),
-        model_backend_filename = po.GetArg(2),
-        noisyfeats_rspecifier = po.GetArg(3),
-        cleanfeats_rspecifier = po.GetArg(4),
-        alignments_rspecifier = po.GetArg(5);
+    std::string noisyfeats_rspecifier = po.GetArg(1),
+        cleanfeats_rspecifier = po.GetArg(2),
+        alignments_rspecifier = po.GetArg(3),
+        model_frontend_filename = po.GetArg(4),
+        model_backend_filename = po.GetArg(5);
 
     std::string target_frontend_filename, target_backend_filename;
     if (!cross_validate) {
