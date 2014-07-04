@@ -34,12 +34,12 @@ alidir_cv=
 
 # TRAINING SCHEDULER
 max_iters=99
-start_halving_inc=0.5
+start_halving_impr=0.5
 halving_factor=0.5
 end_learn_rate=0.0001
 learn_rate=0.015 #learning rate
 bunchsize=128 #size of the Stochastic-GD update block
-l2penalty=0.0 #L2 regularization penalty
+l2_penalty=0.0 #L2 regularization penalty
 
 train_opts=        # options, passed to the training script
 train_tool="nnet-train-xent-hardlab-frmshuff"       # optionally change the training tool
@@ -195,7 +195,7 @@ echo "# RUNNING THE NN-TRAINING SCHEDULER"
 steps/nnet_scheduler/train_scheduler.sh \
   ${feature_transform:+ --feature-transform "$feature_transform"} \
   --learn-rate $learn_rate --max-iters $max_iters \
-  --start-halving-inc $start_halving_inc \
+  --start-halving-impr $start_halving_impr \
   --halving-factor $halving_factor \
   --end_learn_rate $end_learn_rate \
   --bunchsize $bunchsize \
