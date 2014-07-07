@@ -35,7 +35,26 @@ train_dnn2b(){
     --labels ark:exp_multi/dnn2a_pretrain/tri1a/pdf_align/train_dev.pdf \
     --alidir exp_multi/dnn2a_pretrain/tri1a/pdf_align \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  #utils/mkgraph.sh data/lang_bcb05cnp exp_multi/dnn2b exp_multi/dnn2b/graph_bg || exit 1;
-  #log_end "dnn2b [train]"
+  log_end "dnn2b [train]"
 }
-train_dnn2b
+#train_dnn2b
+
+decode_dnn2b(){
+  log_start "dnn2b [decode]"
+  inv_acwt=17
+  acwt=`perl -e "print (1.0/$inv_acwt);"`;
+  for i in `seq -f "%02g" 1 14`; do
+    x=test${i}
+    steps/decode_nnet.sh --stage 1 --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn2b \
+      --model exp_multi/dnn2a_pretrain/tri1a/pdf_align/final.mdl \
+      --class-frame-counts exp_multi/dnn2a_pretrain/tri1a/pdf_align/train.counts \
+      exp_multi/dnn2a_pretrain/tri1a/graph_bcb05cnp feat/fbank/${x} exp_multi/dnn2b/decode/decode_bg_${x} || exit 1;
+    exit 0;
+  done
+  local/average_wer.sh 'exp_multi/dnn2b/decode/decode_bg_test*' | tee exp_multi/dnn2b/decode/decode_bg_test.avgwer
+  log_end "dnn2b [decode]"
+
+}
+decode_dnn2b
+
+
