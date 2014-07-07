@@ -137,7 +137,7 @@ decode_multi_tri1b(){
   local/average_wer.sh 'exp_multi/tri1b/decode/decode_bg_test*' | tee exp_multi/tri1b/decode/decode_bg_test.avgwer
   log_end "tri1b [decode]"
 }
-#decode_multi_tri1b
+decode_multi_tri1b
 
 decode_multi_tri1b_vtsmodel(){
   log_start "tri1b [vtsmodel decode]"
@@ -158,13 +158,13 @@ decode_multi_tri1b_vtsmodel(){
   local/average_wer.sh 'exp_multi/tri1b/decode_vts_model/decode_bg_test*' | tee exp_multi/tri1b/decode_vts_model/decode_bg_test.avgwer
   log_end "tri1b [vtsmodel decode]"
 }
-#decode_multi_tri1b_vtsmodel
+decode_multi_tri1b_vtsmodel
 
 ## dnn2b is the old training setup
 decode_multi_dnn2b(){
   log_start "dnn2b [decode]"
   inv_acwt=17
-  actw=`perl -e "print (1.0/$inv_acwt);"`;
+  acwt=`perl -e "print (1.0/$inv_acwt);"`;
   i=1
   while [ $i -le 14 ]; do
     for j in `seq 0 $numNodes`; do
@@ -182,4 +182,4 @@ decode_multi_dnn2b(){
   local/average_wer.sh 'exp_multi/dnn2b/decode/decode_bg_test*' | tee exp_multi/dnn2b/decode/decode_bg_test.avgwer
   log_end "dnn2b [decode]"
 }
-decode_multi_dnn2b
+#decode_multi_dnn2b
