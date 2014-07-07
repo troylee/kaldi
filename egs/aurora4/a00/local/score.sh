@@ -61,6 +61,7 @@ fi
 $cmd LMWT=$min_lmwt:$max_lmwt $dir/scoring/log/score.LMWT.log \
    cat $dir/scoring/LMWT.tra \| \
     utils/int2sym.pl -f 2- $symtab \| sed 's:\<UNK\>::g' \| \
+    sed 's:\<s\>::g' \| sed 's:\<\/s\>::g' \| sed 's:\<NOISE\>::g' \| \
     compute-wer --text --mode=present \
      ark:$dir/scoring/test_filt.txt  ark,p:- ">&" $dir/wer_LMWT || exit 1;
 
