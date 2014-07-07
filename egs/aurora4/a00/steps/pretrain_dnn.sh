@@ -131,10 +131,6 @@ for depth in $(seq -f '%02g' $start_layer $nn_depth); do
   # currently the initial weights has no final classification layer
 
   TRANSF=$NEW_TRANSF
-
-  # remove those RBM weights files
-  #rm ${RBM}_mmt* 2>/dev/null
-
 done
 
 echo "Pre-training finished."
