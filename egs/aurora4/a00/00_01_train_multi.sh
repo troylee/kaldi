@@ -121,7 +121,7 @@ pretrain(){
   log_start "dnn1a [pretrain]"
   dir=exp_multi/dnn1a_pretrain
   mkdir -p $dir/log
-  steps/pretrain_dnn.sh --nn-depth 7 --norm-vars true --splice 5 feat/fbank/train_multi $dir
+  steps/pretrain_dnn.sh --start-layer 4 --nn-depth 7 --norm-vars true --splice 5 feat/fbank/train_multi $dir
   log_end "dnn1a [pretrain]"
 }
 pretrain
