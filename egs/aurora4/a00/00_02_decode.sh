@@ -7,8 +7,8 @@
 cwd=~/tools/kaldi/egs/aurora4/a00
 cd $cwd
 
-numNodes=3 # starts from 0, inclusive
-nodes=( compg0 compg11 compg12 compg19 )
+numNodes=13 # starts from 0, inclusive
+nodes=( compg0 compg11 compg12 compg19 compg20 compg22 compg24 compg50 compg51 compg52 compg53 compg51 compg52 compg53 )
 
 set -e           #Exit on non-zero return code from any command
 set -o pipefail  #Exit if any of the commands in the pipeline will 
@@ -106,7 +106,7 @@ decode_multi_tri1a(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 5 --srcdir exp_multi/tri1a exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_multi/tri1a exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode/decode_bg_${x}" ) &
       fi
     done
     wait;
@@ -160,3 +160,26 @@ decode_multi_tri1b_vtsmodel(){
 }
 #decode_multi_tri1b_vtsmodel
 
+## dnn2b is the old training setup
+decode_multi_dnn2b(){
+  log_start "dnn2b [decode]"
+  inv_acwt=17
+  actw=`perl -e "print (1.0/$inv_acwt);"`;
+  i=1
+  while [ $i -le 14 ]; do
+    for j in `seq 0 $numNodes`; do
+      sid=$((i+j))
+      if [ $sid -le 14 ]; then
+        printf -v x 'test%02g' $sid
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn2b --model exp_multi/dnn2a_pretrain/tri1a/pdf_align/final.mdl --class-frame-counts exp_multi/dnn2a_pretrain/tri1a/pdf_align/train.counts exp_multi/dnn2a_pretrain/tri1a/graph_bcb05cnp feat/fbank/${x} exp_multi/dnn2b/decode/decode_bg_${x}" ) &
+      fi
+    done
+    wait;
+    i=$((sid+1))
+  done
+  # write out the average WER results
+  local/average_wer.sh 'exp_multi/dnn2b/decode/decode_bg_test*' | tee exp_multi/dnn2b/decode/decode_bg_test.avgwer
+  log_end "dnn2b [decode]"
+}
+decode_multi_dnn2b
