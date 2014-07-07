@@ -51,7 +51,7 @@ decode_clean_tri1a(){
   local/average_wer.sh 'exp_clean/tri1a/decode/decode_bg_test*' | tee exp_clean/tri1a/decode/decode_bg_test.avgwer
   log_end "tri1a [decode]"
 }
-decode_clean_tri1a
+#decode_clean_tri1a
 
 decode_clean_tri1b(){
   log_start "tri1b [decode]"
@@ -72,7 +72,7 @@ decode_clean_tri1b(){
   local/average_wer.sh 'exp_clean/tri1b/decode/decode_bg_test*' | tee exp_clean/tri1b/decode/decode_bg_test.avgwer
   log_end "tri1b [decode]"
 }
-decode_clean_tri1b
+#decode_clean_tri1b
 
 decode_clean_tri1b_vtsmodel(){
   log_start "tri1b [vtsmodel decode]"
@@ -93,7 +93,7 @@ decode_clean_tri1b_vtsmodel(){
   local/average_wer.sh 'exp_clean/tri1b/decode_vts_model/decode_bg_test*' | tee exp_clean/tri1b/decode_vts_model/decode_bg_test.avgwer
   log_end "tri1b [vtsmodel decode]"
 }
-decode_clean_tri1b_vtsmodel
+#decode_clean_tri1b_vtsmodel
 
 
 decode_multi_tri1a(){
@@ -116,7 +116,7 @@ decode_multi_tri1a(){
   local/average_wer.sh 'exp_multi/tri1a/decode/decode_bg_test*' | tee exp_multi/tri1a/decode/decode_bg_test.avgwer
   log_end "tri1a [decode]"
 }
-decode_multi_tri1a
+#decode_multi_tri1a
 
 decode_multi_tri1b(){
   log_start "tri1b [decode]"
@@ -137,7 +137,7 @@ decode_multi_tri1b(){
   local/average_wer.sh 'exp_multi/tri1b/decode/decode_bg_test*' | tee exp_multi/tri1b/decode/decode_bg_test.avgwer
   log_end "tri1b [decode]"
 }
-decode_multi_tri1b
+#decode_multi_tri1b
 
 decode_multi_tri1b_vtsmodel(){
   log_start "tri1b [vtsmodel decode]"
@@ -158,5 +158,5 @@ decode_multi_tri1b_vtsmodel(){
   local/average_wer.sh 'exp_multi/tri1b/decode_vts_model/decode_bg_test*' | tee exp_multi/tri1b/decode_vts_model/decode_bg_test.avgwer
   log_end "tri1b [vtsmodel decode]"
 }
-decode_multi_tri1b_vtsmodel
+#decode_multi_tri1b_vtsmodel
 
