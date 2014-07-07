@@ -37,10 +37,10 @@ int main(int argc, char *argv[]) {
   try {
     const char *usage =
         "Perform iteration of Neural Network training by stochastic gradient descent.\n"
-        "Usage:  nnet-train-stereo [options] <model-in> <noisyfeat-rspecifier> \n"
-        "          <cleanfeat-rspecifier> <alignments-rspecifier> <model-out>\n"
+        "Usage:  nnet-train-stereo [options] <noisyfeat-rspecifier> \n"
+        "          <cleanfeat-rspecifier> <alignments-rspecifier> <model-in> <model-out>\n"
         "e.g.: \n"
-        " nnet-train-stereo --num-regularized-hid=1 nnet.init scp:train_noisy.scp scp:train_clean.scp ark:train.ali nnet.iter1\n";
+        " nnet-train-stereo --num-regularized-hid=1 scp:train_noisy.scp scp:train_clean.scp ark:train.ali nnet.init nnet.iter1\n";
 
     ParseOptions po(usage);
 
@@ -99,10 +99,10 @@ int main(int argc, char *argv[]) {
       KALDI_ERR << "No hidden layers to regularize, choose a proper training tool!";
     }
 
-    std::string model_filename = po.GetArg(1),
-        noisyfeat_rspecifier = po.GetArg(2),
-        cleanfeat_rspecifier = po.GetArg(3),
-        alignments_rspecifier = po.GetArg(4),
+    std::string noisyfeat_rspecifier = po.GetArg(1),
+        cleanfeat_rspecifier = po.GetArg(2),
+        alignments_rspecifier = po.GetArg(3),
+        model_filename = po.GetArg(4),
         target_model_filename;
 
     if(!crossvalidate) {
