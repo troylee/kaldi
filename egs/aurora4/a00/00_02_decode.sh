@@ -7,7 +7,7 @@
 cwd=~/tools/kaldi/egs/aurora4/a00
 cd $cwd
 
-numNodes=4
+numNodes=3 # starts from 0, inclusive
 nodes=( compg0 compg11 compg12 compg19 )
 
 set -e           #Exit on non-zero return code from any command
@@ -61,8 +61,8 @@ decode_clean_tri1b(){
       sid=$((i+j))
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
-        echo ${nodes[$i]} $x
-        ( ssh ${nodes[$i]} "cd $cwd; steps/decode_deltas.sh --nj 5 --srcdir exp_clean/tri1b exp_clean/tri1b/graph_bg feat/mfcc/${x} exp_clean/tri1b/decode/decode_bg_${x}" ) &
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 5 --srcdir exp_clean/tri1b exp_clean/tri1b/graph_bg feat/mfcc/${x} exp_clean/tri1b/decode/decode_bg_${x}" ) &
       fi
     done
     wait;
@@ -82,8 +82,8 @@ decode_clean_tri1b_vtsmodel(){
       sid=$((i+j))
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
-        echo ${nodes[$i]} $x
-        ( ssh ${nodes[$i]} "cd $cwd; steps/decode_vts_model.sh --nj 5 --srcdir exp_clean/tri1b exp_clean/tri1b/graph_bg feat/mfcc/${x} exp_clean/tri1b/decode_vts_model/decode_bg_${x}" ) &
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_vts_model.sh --nj 5 --srcdir exp_clean/tri1b exp_clean/tri1b/graph_bg feat/mfcc/${x} exp_clean/tri1b/decode_vts_model/decode_bg_${x}" ) &
       fi
     done
     wait;
@@ -105,8 +105,8 @@ decode_multi_tri1a(){
       sid=$((i+j))
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
-        echo ${nodes[$i]} $x
-        ( ssh ${nodes[$i]} "cd $cwd; steps/decode_deltas.sh --nj 5 --srcdir exp_multi/tri1a exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode/decode_bg_${x}" ) &
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 5 --srcdir exp_multi/tri1a exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode/decode_bg_${x}" ) &
       fi
     done
     wait;
@@ -116,7 +116,7 @@ decode_multi_tri1a(){
   local/average_wer.sh 'exp_multi/tri1a/decode/decode_bg_test*' | tee exp_multi/tri1a/decode/decode_bg_test.avgwer
   log_end "tri1a [decode]"
 }
-decode_multi_tri1a
+#decode_multi_tri1a
 
 decode_multi_tri1b(){
   log_start "tri1b [decode]"
@@ -126,8 +126,8 @@ decode_multi_tri1b(){
       sid=$((i+j))
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
-        echo ${nodes[$i]} $x
-        ( ssh ${nodes[$i]} "cd $cwd; steps/decode_deltas.sh --nj 5 --srcdir exp_multi/tri1b exp_multi/tri1b/graph_bg feat/mfcc/${x} exp_multi/tri1b/decode/decode_bg_${x}" ) &
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 5 --srcdir exp_multi/tri1b exp_multi/tri1b/graph_bg feat/mfcc/${x} exp_multi/tri1b/decode/decode_bg_${x}" ) &
       fi
     done
     wait;
@@ -137,7 +137,7 @@ decode_multi_tri1b(){
   local/average_wer.sh 'exp_multi/tri1b/decode/decode_bg_test*' | tee exp_multi/tri1b/decode/decode_bg_test.avgwer
   log_end "tri1b [decode]"
 }
-decode_multi_tri1b
+#decode_multi_tri1b
 
 decode_multi_tri1b_vtsmodel(){
   log_start "tri1b [vtsmodel decode]"
@@ -147,8 +147,8 @@ decode_multi_tri1b_vtsmodel(){
       sid=$((i+j))
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
-        echo ${nodes[$i]} $x
-        ( ssh ${nodes[$i]} "cd $cwd; steps/decode_vts_model.sh --nj 5 --srcdir exp_multi/tri1b exp_multi/tri1b/graph_bg feat/mfcc/${x} exp_multi/tri1b/decode_vts_model/decode_bg_${x}" ) &
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_vts_model.sh --nj 5 --srcdir exp_multi/tri1b exp_multi/tri1b/graph_bg feat/mfcc/${x} exp_multi/tri1b/decode_vts_model/decode_bg_${x}" ) &
       fi
     done
     wait;
@@ -158,5 +158,5 @@ decode_multi_tri1b_vtsmodel(){
   local/average_wer.sh 'exp_multi/tri1b/decode_vts_model/decode_bg_test*' | tee exp_multi/tri1b/decode_vts_model/decode_bg_test.avgwer
   log_end "tri1b [vtsmodel decode]"
 }
-decode_multi_tri1b_vtsmodel
+#decode_multi_tri1b_vtsmodel
 
