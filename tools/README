@@ -1,0 +1,7 @@
+To disable the CPU throttling(not recommended), simply comment the following test in ATLAS/CONFIG/src/probe_arch.c
+
+#----------------------------------------------------------------------------
+   if (flags & Pthrottle)
+      printf("CPU THROTTLE=%d\n",
+             ProbeOneInt(OS, asmd, targ, "-t", "CPU THROTTLE=", &sure));
+#----------------------------------------------------------------------------
