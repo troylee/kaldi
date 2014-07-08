@@ -26,32 +26,4 @@ log_end(){
   echo "#####################################################################"
 }
 
-train_dnn2b(){
-  log_start "dnn2b [train]"
-  dir=exp_multi/dnn2b
-  dbn=exp_multi/dnn2a_pretrain/hid06c_transf
-  mkdir -p $dir/log
-  steps/train_nnet.sh --norm-vars true --dbn $dbn --hid-layers 0 --learn-rate 0.015 \
-    --labels ark:exp_multi/dnn2a_pretrain/tri1a/pdf_align/train_dev.pdf \
-    --alidir exp_multi/dnn2a_pretrain/tri1a/pdf_align \
-    feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  #utils/mkgraph.sh data/lang_bcb05cnp exp_multi/dnn2b exp_multi/dnn2b/graph_bg || exit 1;
-  #log_end "dnn2b [train]"
-}
-#train_dnn2b
-
-train_dnn2c(){
-  log_start "dnn2c [train]"
-  dir=exp_multi/dnn2c
-  ali=exp_multi/tri1a_ali/train_multi
-  ali_dev=exp_multi/tri1a_ali/dev_multi
-  dbn=exp_multi/dnn2a_pretrain/hid06c_transf
-  mkdir -p $dir/log
-  steps/train_nnet.sh --norm-vars true --dbn $dbn --hid-layers 0 --learn-rate 0.015 \
-    --alidir $ali --alidir-cv $ali_dev \
-    feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp exp_multi/dnn2c exp_multi/dnn2c/graph_bg || exit 1;
-  log_end "dnn2c [train]" 
-}
-train_dnn2c
 
