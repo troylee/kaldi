@@ -504,7 +504,7 @@ static void _diff_relu(Real*eout, const Real*e, const Real*y, MatrixDim d) {
   int32_cuda j = blockIdx.y * blockDim.y + threadIdx.y;
   int32_cuda index = i + j*d.stride;
   if( i < d.cols  && j < d.rows ) 
-    eout[index] = (y[index] > 0.0) * e[index];
+    eout[index] = (y[index] > 0.0) ? e[index] : 0.0;
 }
 
 template<typename Real>

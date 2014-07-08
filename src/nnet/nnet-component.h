@@ -58,7 +58,6 @@ class Component {
     kBiasedLinearity,
     kSharedLinearity, 
     kKrylovLinearity,
-    kDropoutBL,
     kCMVNBL,
     kPosNegBL,
     kGaussBL,
@@ -72,6 +71,8 @@ class Component {
     kSigmoid,
     kRelu,
     kSoftRelu,
+    kDropout,
+    kScale,
 
     kTranform =  0x0400,
     kRbm,
@@ -130,9 +131,6 @@ class Component {
   static Component* Read(std::istream &is, bool binary, Nnet *nnet);
   /// Write component to stream
   void Write(std::ostream &os, bool binary) const;
-  /// Write component to stream
-  void WriteAsBiasedLinearity(std::ostream &os, bool binary) const;
-
 
 
   // abstract interface for propagation/backpropagation 

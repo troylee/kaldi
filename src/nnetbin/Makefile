@@ -8,7 +8,7 @@ LDLIBS += $(CUDA_LDLIBS)
 
 BINFILES = nnet-train-xent-hardlab-perutt nnet-train-xent-hardlab-frmshuff nnet-train-mse-tgtmat-frmshuff \
 		   nnet-forward nnet-copy rbm-train-cd1-frmshuff rbm-convert-to-nnet nnet-trim-n-last-transforms \
-		   nnet-train-mmi-sequential dropoutbl-to-biasedlinearity train-noise-cmvn posnegbl-create \
+		   nnet-train-mmi-sequential train-noise-cmvn posnegbl-create \
 		   posnegbl-forward posnegbl-train batched-feats gaussbl-create gaussbl-forward gaussbl-train \
 		   rbms-convert-to-autoencoder compute-feats-mse weight-tied-ae-train append-lin sub-nnet \
 		   rbm-to-maskedrbm copy-feats-to-text copy-feats-from-text rorbm-train-frmshuff grbm-train-frmshuff \
@@ -22,7 +22,7 @@ BINFILES = nnet-train-xent-hardlab-perutt nnet-train-xent-hardlab-frmshuff nnet-
 		   nnet-cleanh-train-frmshuff codebl-create codebl-train-xent-hardlab-frmshuff codevec-init \
 		   codevec-train-xent-hardlab-frmshuff codebl-forward ideal-hidmask-forward lin-train-perutt-single-iter \
 		   scale-nnet nnet-hidmask-mse-tgtmat-frmshuff nnet-hidmask-forward ideal-hidmask-stats nnet-train-stereo \
-		   rbm-uttbias-train rbm-uttbias-forward
+		   rbm-uttbias-train rbm-uttbias-forward nnet-add-dropout nnet-rm-dropout
 
 OBJFILES =
 
