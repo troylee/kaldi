@@ -50,6 +50,7 @@ class Scale : public Component {
 
   void WriteData(std::ostream &os, bool binary) const {
     WriteBasicType(os, binary, scale_);
+    if (!binary) os << "\n";
   }
 
   void PropagateFnc(const CuMatrix<BaseFloat> &in, CuMatrix<BaseFloat> *out) {
@@ -105,6 +106,7 @@ class Dropout : public Component {
 
   void WriteData(std::ostream &os, bool binary) const {
     WriteBasicType(os, binary, drop_ratio_);
+    if (!binary) os << "\n";
   }
 
   void PropagateFnc(const CuMatrix<BaseFloat> &in, CuMatrix<BaseFloat> *out) {

@@ -66,8 +66,8 @@ int main(int argc, char *argv[]) {
 
     // find out the layers where dropout to be appended
     std::vector<bool> flag(nnet.LayerCount(), false);
-    for (int32 i=3; i<po.NumArgs(); ++i) {
-      std::string str=po.GetArg(i+3);
+    for (int32 i=3; i<=po.NumArgs(); ++i) {
+      std::string str=po.GetArg(i);
       flag[atoi(str.c_str())]=true;
     }
 
