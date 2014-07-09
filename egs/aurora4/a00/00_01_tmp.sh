@@ -34,10 +34,10 @@ train_dnn2d(){
   ali_dev=exp_multi/tri1a_ali/dev_multi
   ori_mlp=exp_multi/dnn2c/nnet.init
   mkdir -p $dir/log
-#  cat $ori_mlp | sed "s:<sigmoid>:<relu>:g" > $dir/nnet.tmp || exit 1;
-#  nnet-add-dropout --add-to-input=true --binary=false --input-drop-ratio=0.2 \
-#    --hidden-drop-ratio=0.5 $dir/nnet.tmp $dir/nnet.init 1 3 5 7 9 11 || exit 1;
-#  rm $dir/nnet.tmp
+  cat $ori_mlp | sed "s:<sigmoid>:<relu>:g" > $dir/nnet.tmp || exit 1;
+  nnet-add-dropout --add-to-input=true --binary=false --input-drop-ratio=0.2 \
+    --hidden-drop-ratio=0.5 $dir/nnet.tmp $dir/nnet.init 1 3 5 7 9 11 || exit 1;
+  rm $dir/nnet.tmp
   steps/train_nnet_dropout.sh --norm-vars true --splice 5 --mlp-init $dir/nnet.init \
     --alidir $ali --alidir-cv $ali_dev \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;

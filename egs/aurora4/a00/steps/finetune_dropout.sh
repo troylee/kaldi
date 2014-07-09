@@ -48,7 +48,7 @@ labels_cv=$4
 nnet_in=$5
 nnet_out=$6
 
-dir=$(dirname $rbm_out)
+dir=$(dirname $nnet_out)
 logdir=$dir/../log
 [ ! -d $dir ] && mkdir $dir
 [ ! -d $logdir ] && mkdir $logdir
@@ -59,10 +59,10 @@ logdir=$dir/../log
 ##############################
 #start training
 
-base=$(basename $rbm_out)
+base=$(basename $nnet_out)
 momentum=$momentum_init
 #Dropout tuning
-for i in $(seq 1 $num_iters); do
+for iter in $(seq 1 $num_iters); do
   echo -n "ITERATION $iter: "
   # training
   log=$logdir/${base}.iter${iter}.tr.log; hostname>$log
@@ -72,7 +72,7 @@ for i in $(seq 1 $num_iters); do
     --binary=true \
     ${feature_transform:+ --feature-transform=$feature_transform} \
     ${average_grad:+ "--average-grad=$average_grad"} \
-    "$feats_tr" "$labels_tr" $nnet_in $nnet_out.iter$i \
+    "$feats_tr" "$labels_tr" $nnet_in $nnet_out.iter${iter} \
     2> $log || exit 1; 
 
   tr_acc=$(cat $log | awk '/FRAME_ACCURACY/{ acc=$3; sub(/%/,"",acc); } END{print acc}')
@@ -80,28 +80,28 @@ for i in $(seq 1 $num_iters); do
   
   # cross-validation
   log=$logdir/${base}.iter${iter}.cv.log; hostname>$log
-  nnet-rm-dropout --binary=true $nnet_out.iter$i $nnet_out.iter$i.fwd 2>$log || exit 1;
+  nnet-rm-dropout --binary=true $nnet_out.iter${iter} $nnet_out.iter${iter}.fwd 2>$log || exit 1;
   $train_tool --cross-validate=true \
     --bunchsize=$bunchsize --cachesize=$cachesize --verbose=$verbose \
     ${feature_transform:+ --feature-transform=$feature_transform} \
-    "$feats_cv" "$labels_cv" $nnet_out.iter$i.fwd \
+    "$feats_cv" "$labels_cv" $nnet_out.iter${iter}.fwd \
     2>>$log || exit 1;
   
   acc_new=$(cat $log | awk '/FRAME_ACCURACY/{ acc=$3; sub(/%/,"",acc); } END{print acc}')
   echo -n "CROSSVAL AVG.FRMACC $(printf "%.4f" $acc_new), "
 
-  [ $i -gt 1 ] && rm $nnet_in
-  rm $nnet_out.iter$i.fwd
-  nnet_in=$nnet_out.iter$i
+  [ ${iter} -gt 1 ] && rm $nnet_in
+  rm $nnet_out.iter${iter}.fwd
+  nnet_in=$nnet_out.iter${iter}
   # update momentum
-  momentum=$((momentum+momentum_inc))
+  momentum=`perl -e "print ($momentum + $momentum_inc);"`
 done
 
 #make full path
 [[ ${nnet_out:0:1} != "/" && ${nnet_out:0:1} != "~" ]] && nnet_out=$PWD/$nnet_out
 
-#link the final rbm
-ln -s $nnet_out.iter$i $nnet_out
+#link the final nnet
+ln -s $nnet_out.iter${iter} $nnet_out
 
 echo "$0 finished ok"
 
