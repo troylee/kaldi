@@ -895,7 +895,7 @@ void CuMatrix<Real>::ApplyRowL2UpperBound(Real bound) {
     Timer tim;
 
     size_t dimBlock = CUBLOCK;
-    size_t dimGrid  = n_blocks(X.NumRows(), CUBLOCK);
+    size_t dimGrid  = n_blocks(NumRows(), CUBLOCK);
 
     cuda_apply_row_l2upperbound(dimGrid, dimBlock, data_, bound, Dim());
     cuSafeCall(cudaGetLastError());

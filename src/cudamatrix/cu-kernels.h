@@ -186,7 +186,7 @@ template<> inline void cuda_add_vec_to_cols<double>(dim3 Gr, dim3 Bl, double alp
 template<> inline void cuda_add_vec_to_rows<double>(dim3 Gr, dim3 Bl, double alpha, const double *row, double beta, double *dst, MatrixDim d) { cudaD_add_vec_to_rows(Gr,Bl,alpha,row,beta,dst,d); }
 template<> inline void cuda_add_vec_to_partial_rows<double>(dim3 Gr, dim3 Bl, double alpha, int32_cuda offset, const double *row, int32_cuda dim, double beta, double *dst, MatrixDim d) { cudaD_add_vec_to_partial_rows(Gr,Bl,alpha,offset,row,dim,beta,dst,d);}
 template<> inline void cuda_log_add_exp_mat<double>(dim3 Gr, dim3 Bl, const double *A, double *dst, MatrixDim d) { cudaD_log_add_exp_mat(Gr,Bl,A,dst,d); }
-template<> inline void cuda_apply_row_l2upperbound<double>(size_t Gr, size_t Bl, Real *mat, Real bound, MatrixDim d) { cudaD_apply_l2upperbound(Gr,Bl,mat,bound,d); }
+template<> inline void cuda_apply_row_l2upperbound<double>(size_t Gr, size_t Bl, double *mat, double bound, MatrixDim d) { cudaD_apply_row_l2upperbound(Gr,Bl,mat,bound,d); }
  
 /*
  * CuVector

@@ -430,7 +430,7 @@ static void _apply_row_l2upperbound(Real* mat, Real bound, MatrixDim d) {
   // check and normlize if necessary
   if(l2norm > bound){
     for(int32_cuda i=0; i<d.cols; i++){
-      mat[i+j*d.stride] /= l2norm;
+      mat[i+j*d.stride] = mat[i+j*d.stride] * bound / l2norm;
     } 
   }
 }

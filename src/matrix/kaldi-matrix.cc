@@ -2207,7 +2207,7 @@ void MatrixBase<Real>::ApplyRowL2UpperBound(Real bound) {
     if (l2norm > bound2){
       l2norm = sqrt(l2norm);
       for(MatrixIndexT j=0; j < num_cols_; j++)
-        (*this)(i,j) /= l2norm;
+        (*this)(i,j) = (*this)(i,j) * bound / l2norm;
     }
   }
 }

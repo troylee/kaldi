@@ -14,6 +14,7 @@ momentum_init=0
 momentum_inc=0
 l1_penalty=0
 l2_penalty=0
+l2_upperbound=0
 average_grad=
 # data processing
 bunchsize=256
@@ -68,8 +69,8 @@ for iter in $(seq 1 $num_iters); do
   log=$logdir/${base}.iter${iter}.tr.log; hostname>$log
   $train_tool \
     --learn-rate=$learn_rate --momentum=$momentum --l1-penalty=$l1_penalty --l2-penalty=$l2_penalty \
-    --bunchsize=$bunchsize --cachesize=$cachesize --randomize=true --verbose=$verbose \
-    --binary=true \
+    --l2-upper-bound=$l2_upperbound --bunchsize=$bunchsize --cachesize=$cachesize --randomize=true \
+    --verbose=$verbose --binary=true \
     ${feature_transform:+ --feature-transform=$feature_transform} \
     ${average_grad:+ "--average-grad=$average_grad"} \
     "$feats_tr" "$labels_tr" $nnet_in $nnet_out.iter${iter} \
@@ -90,8 +91,8 @@ for iter in $(seq 1 $num_iters); do
   acc_new=$(cat $log | awk '/FRAME_ACCURACY/{ acc=$3; sub(/%/,"",acc); } END{print acc}')
   echo -n "CROSSVAL AVG.FRMACC $(printf "%.4f" $acc_new), "
 
-  [ ${iter} -gt 1 ] && rm $nnet_in
-  rm $nnet_out.iter${iter}.fwd
+  #[ ${iter} -gt 1 ] && rm $nnet_in
+  #rm $nnet_out.iter${iter}.fwd
   nnet_in=$nnet_out.iter${iter}
   # update momentum
   momentum=`perl -e "print ($momentum + $momentum_inc);"`
