@@ -180,6 +180,9 @@ class CuMatrix {
   /// B = log ( exp(A) + exp(B) )
   void LogAddExpMat(const CuMatrix<Real>& A);
 
+  /// Normalize rows that have L2 norm larger than the specified bound
+  void ApplyRowL2UpperBound(Real bound);
+
   /// Accessor to the non-CUDA matrix
   const MatrixBase<Real>& Mat() const {
     return mat_;

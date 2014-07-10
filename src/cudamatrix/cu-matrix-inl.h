@@ -885,6 +885,28 @@ void CuMatrix<Real>::AddMatMat(
   }
 }
 
+/*
+ * Constrain the row vector L2 norm to be less than a specified value
+ */
+template<typename Real>
+void CuMatrix<Real>::ApplyRowL2UpperBound(Real bound) {
+  #if HAVE_CUDA==1
+  if (CuDevice::Instantiate().Enabled()) {
+    Timer tim;
+
+    size_t dimBlock = CUBLOCK;
+    size_t dimGrid  = n_blocks(X.NumRows(), CUBLOCK);
+
+    cuda_apply_row_l2upperbound(dimGrid, dimBlock, data_, bound, Dim());
+    cuSafeCall(cudaGetLastError());
+
+    CuDevice::Instantiate().AccuProfile(__func__, tim.Elapsed());
+  } else
+  #endif
+  {
+    mat_.ApplyRowL2UpperBound(bound);
+  }
+}
 
 } // namespace kaldi
 

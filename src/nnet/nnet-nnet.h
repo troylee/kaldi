@@ -92,6 +92,7 @@ class Nnet {
 
   void SetMomentum(BaseFloat mmt);
   void SetL2Penalty(BaseFloat l2);
+  void SetL2UpperBound(BaseFloat bound);
   void SetL1Penalty(BaseFloat l1);
   void SetAverageGrad(bool flag);
 
@@ -193,6 +194,14 @@ inline void Nnet::SetL2Penalty(BaseFloat l2) {
   for(int32 i=0; i<LayerCount(); i++) {
     if (nnet_[i]->IsUpdatable()) {
       dynamic_cast<UpdatableComponent*>(nnet_[i])->SetL2Penalty(l2);
+    }
+  }
+}
+
+inline void Nnet::SetL2UpperBound(BaseFloat bound) {
+  for(int32 i=0; i<LayerCount(); i++) {
+    if (nnet_[i]->IsUpdatable()) {
+      dynamic_cast<UpdatableComponent*>(nnet_[i])->SetL2UpperBound(bound);
     }
   }
 }

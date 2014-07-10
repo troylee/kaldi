@@ -44,11 +44,13 @@ int main(int argc, char *argv[]) {
     BaseFloat learn_rate = 0.008,
         momentum = 0.0,
         l2_penalty = 0.0,
+        l2_upper_bound = 0.0,
         l1_penalty = 0.0;
 
     po.Register("learn-rate", &learn_rate, "Learning rate");
     po.Register("momentum", &momentum, "Momentum");
     po.Register("l2-penalty", &l2_penalty, "L2 penalty (weight decay)");
+    po.Register("l2-upper-bound", &l2_upper_bound, "L2 upper bound (>=1.0)");
     po.Register("l1-penalty", &l1_penalty, "L1 penalty (promote sparsity)");
 
     bool average_grad = false;
@@ -100,6 +102,7 @@ int main(int argc, char *argv[]) {
     }
     nnet.SetMomentum(momentum);
     nnet.SetL2Penalty(l2_penalty);
+    nnet.SetL2UpperBound(l2_upper_bound);
     nnet.SetL1Penalty(l1_penalty);
     nnet.SetAverageGrad(average_grad);
 
