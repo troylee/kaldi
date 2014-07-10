@@ -33,6 +33,7 @@ alidir=
 alidir_cv=
 
 # TRAINING SCHEDULER
+average_grad=false
 bunchsize=128 #size of the Stochastic-GD update block
 l1_penalty=0.0
 l2_penalty=0.0 #L2 regularization penalty
@@ -209,7 +210,7 @@ echo "# RUNNING THE NN-TRAINING (DROPOUT)"
 steps/finetune_dropout.sh ${feature_transform:+ --feature-transform "$feature_transform"} \
   --num_iters ${num_iters_momentum_adjust} --momentum-init ${momentum_init} --momentum-inc ${momentum_inc} \
   --learn-rate ${high_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
-  --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} \
+  --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} --average-grad ${average_grad} \
   "$feats_tr" "$feats_cv" "$labels_tr" "$labels_cv" \
   $mlp_init $dir/nnet/nnet_stage1
 
@@ -217,7 +218,7 @@ steps/finetune_dropout.sh ${feature_transform:+ --feature-transform "$feature_tr
 steps/finetune_dropout.sh ${feature_transform:+ --feature-transform "$feature_transform"} \
   --num_iters ${num_iters_high_lrate} --momentum-init ${momentum_final} --momentum-inc 0.0 \
   --learn-rate ${high_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
-  --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} \
+  --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} --average-grad ${average_grad} \
   "$feats_tr" "$feats_cv" "$labels_tr" "$labels_cv" \
   $dir/nnet/nnet_stage1 $dir/nnet/nnet_stage2
 
@@ -225,7 +226,7 @@ steps/finetune_dropout.sh ${feature_transform:+ --feature-transform "$feature_tr
 steps/finetune_dropout.sh ${feature_transform:+ --feature-transform "$feature_transform"} \
   --num_iters ${num_iters_low_lrate} --momentum-init ${momentum_final} --momentum-inc 0.0 \
   --learn-rate ${low_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
-  --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} \
+  --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} --average-grad ${average_grad} \
   "$feats_tr" "$feats_cv" "$labels_tr" "$labels_cv" \
   $dir/nnet/nnet_stage2 $dir/nnet/nnet_stage3
     

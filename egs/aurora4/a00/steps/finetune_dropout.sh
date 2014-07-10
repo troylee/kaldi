@@ -15,7 +15,7 @@ momentum_inc=0
 l1_penalty=0
 l2_penalty=0
 l2_upperbound=0
-average_grad=
+average_grad=false
 # data processing
 bunchsize=256
 cachesize=32768
@@ -64,7 +64,7 @@ base=$(basename $nnet_out)
 momentum=$momentum_init
 #Dropout tuning
 for iter in $(seq 1 $num_iters); do
-  echo -n "ITERATION $iter: "
+  printf "ITERATION $iter: "
   # training
   log=$logdir/${base}.iter${iter}.tr.log; hostname>$log
   $train_tool \
@@ -77,7 +77,7 @@ for iter in $(seq 1 $num_iters); do
     2> $log || exit 1; 
 
   tr_acc=$(cat $log | awk '/FRAME_ACCURACY/{ acc=$3; sub(/%/,"",acc); } END{print acc}')
-  echo -n "TRAIN AVG.FRMACC $(printf "%.4f" $tr_acc), (lrate$(printf "%.6g" $learn_rate)), "
+  printf "TRAIN AVG.FRMACC $(printf "%.4f" $tr_acc), (lrate$(printf "%.6g" $learn_rate)), "
   
   # cross-validation
   log=$logdir/${base}.iter${iter}.cv.log; hostname>$log
@@ -89,7 +89,7 @@ for iter in $(seq 1 $num_iters); do
     2>>$log || exit 1;
   
   acc_new=$(cat $log | awk '/FRAME_ACCURACY/{ acc=$3; sub(/%/,"",acc); } END{print acc}')
-  echo -n "CROSSVAL AVG.FRMACC $(printf "%.4f" $acc_new), "
+  printf "CROSSVAL AVG.FRMACC $(printf "%.4f" $acc_new)\n"
 
   #[ ${iter} -gt 1 ] && rm $nnet_in
   #rm $nnet_out.iter${iter}.fwd

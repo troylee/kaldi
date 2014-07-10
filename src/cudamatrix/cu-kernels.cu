@@ -415,26 +415,33 @@ static void _apply_mask(Real* mat, const char* mask, MatrixDim dmat, MatrixDim d
     if(mask[index2] == 0) mat[index] = 0;
 }
 
+
 template<typename Real>
 __global__
 static void _apply_row_l2upperbound(Real* mat, Real bound, MatrixDim d) {
   int32_cuda j = blockIdx.x * blockDim.x + threadIdx.x;
   if(j >= d.rows) return;
   
-  // compute the l2norm
+  // find the max_mag
+  double max_mag = abs(mat[j*d.stride]);
+  for(int32_cuda i=1; i<d.cols; i++){
+    if(max_mag < abs(mat[i+j*d.stride])){
+      max_mag = abs(mat[i+j*d.stride]);
+    }
+  }
+  // divide the values by max_mag to avoid overflow and compute the l2norm
   double l2norm = 0.0;
   for(int32_cuda i=0; i<d.cols; i++){
-    l2norm += mat[i+j*d.stride];
+    l2norm += (mat[i+j*d.stride]/max_mag) * (mat[i+j*d.stride]/max_mag);
   }
   l2norm=sqrt(l2norm);
-  // check and normlize if necessary
-  if(l2norm > bound){
+  // normalize if needed
+  if(max_mag * l2norm > bound){
     for(int32_cuda i=0; i<d.cols; i++){
-      mat[i+j*d.stride] = mat[i+j*d.stride] * bound / l2norm;
+      mat[i+j*d.stride] = ( (mat[i+j*d.stride] / max_mag) / l2norm) * bound;
     } 
   }
 }
-
 
 /*
  * CuVector

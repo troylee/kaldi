@@ -96,7 +96,7 @@ class BiasedLinearity : public UpdatableComponent {
     bias_.AddVec(-learn_rate_, bias_corr_);
 
     // l2 upper bound
-    if (l2_upper_bound_ != 0.0) {
+    if (l2_upper_bound_ > 0.0) {
       linearity_.ApplyRowL2UpperBound(l2_upper_bound_);
     }
   }
