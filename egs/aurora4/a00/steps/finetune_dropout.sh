@@ -24,6 +24,7 @@ feature_transform=
 num_iters=1
 # misc.
 verbose=1
+debug=false
 # tool
 train_tool="nnet-train-xent-hardlab-frmshuff" 
 # End configuration.
@@ -65,35 +66,43 @@ momentum=$momentum_init
 #Dropout tuning
 for iter in $(seq 1 $num_iters); do
   printf "ITERATION $iter: "
-  # training
-  log=$logdir/${base}.iter${iter}.tr.log; hostname>$log
-  $train_tool \
-    --learn-rate=$learn_rate --momentum=$momentum --l1-penalty=$l1_penalty --l2-penalty=$l2_penalty \
-    --l2-upper-bound=$l2_upperbound --bunchsize=$bunchsize --cachesize=$cachesize --randomize=true \
-    --verbose=$verbose --binary=true \
-    ${feature_transform:+ --feature-transform=$feature_transform} \
-    ${average_grad:+ "--average-grad=$average_grad"} \
-    "$feats_tr" "$labels_tr" $nnet_in $nnet_out.iter${iter} \
-    2> $log || exit 1; 
 
-  tr_acc=$(cat $log | awk '/FRAME_ACCURACY/{ acc=$3; sub(/%/,"",acc); } END{print acc}')
-  printf "TRAIN AVG.FRMACC $(printf "%.4f" $tr_acc), (lrate$(printf "%.6g" $learn_rate)), "
-  
-  # cross-validation
-  log=$logdir/${base}.iter${iter}.cv.log; hostname>$log
-  nnet-rm-dropout --binary=true $nnet_out.iter${iter} $nnet_out.iter${iter}.fwd 2>$log || exit 1;
-  $train_tool --cross-validate=true \
-    --bunchsize=$bunchsize --cachesize=$cachesize --verbose=$verbose \
-    ${feature_transform:+ --feature-transform=$feature_transform} \
-    "$feats_cv" "$labels_cv" $nnet_out.iter${iter}.fwd \
-    2>>$log || exit 1;
-  
-  acc_new=$(cat $log | awk '/FRAME_ACCURACY/{ acc=$3; sub(/%/,"",acc); } END{print acc}')
-  printf "CROSSVAL AVG.FRMACC $(printf "%.4f" $acc_new)\n"
+  if [ -e $logdir/.done_${base}.iter${iter} ] && [ -e ${nnet_out}.iter${iter} ]; then
+    printf "skipping ... \n"
+  else
+    # training
+    log=$logdir/${base}.iter${iter}.tr.log; hostname>$log
+    $train_tool \
+      --learn-rate=$learn_rate --momentum=$momentum --l1-penalty=$l1_penalty --l2-penalty=$l2_penalty \
+      --l2-upper-bound=$l2_upperbound --bunchsize=$bunchsize --cachesize=$cachesize --randomize=true \
+      --verbose=$verbose --binary=true \
+      ${feature_transform:+ --feature-transform=$feature_transform} \
+      ${average_grad:+ "--average-grad=$average_grad"} \
+      "$feats_tr" "$labels_tr" $nnet_in ${nnet_out}.iter${iter} \
+      2> $log || exit 1; 
 
-  #[ ${iter} -gt 1 ] && rm $nnet_in
-  #rm $nnet_out.iter${iter}.fwd
-  nnet_in=$nnet_out.iter${iter}
+    tr_acc=$(cat $log | awk '/FRAME_ACCURACY/{ acc=$3; sub(/%/,"",acc); } END{print acc}')
+    printf "TRAIN AVG.FRMACC $(printf "%.4f" $tr_acc), (lrate$(printf "%.6g" $learn_rate)), "
+    
+    # cross-validation
+    log=$logdir/${base}.iter${iter}.cv.log; hostname>$log
+    nnet-rm-dropout --binary=true ${nnet_out}.iter${iter} ${nnet_out}.iter${iter}.fwd 2>$log || exit 1;
+    $train_tool --cross-validate=true \
+      --bunchsize=$bunchsize --cachesize=$cachesize --verbose=$verbose \
+      ${feature_transform:+ --feature-transform=$feature_transform} \
+      "$feats_cv" "$labels_cv" ${nnet_out}.iter${iter}.fwd \
+      2>>$log || exit 1;
+    
+    acc_new=$(cat $log | awk '/FRAME_ACCURACY/{ acc=$3; sub(/%/,"",acc); } END{print acc}')
+    printf "CROSSVAL AVG.FRMACC $(printf "%.4f" $acc_new)\n"
+
+    touch $logdir/.done_${base}.iter${iter}
+
+    [ ${iter} -gt 1 ] && [ ! $debug ] && rm $nnet_in
+    rm ${nnet_out}.iter${iter}.fwd
+  fi # skipping test
+
+  nnet_in=${nnet_out}.iter${iter}
   # update momentum
   momentum=`perl -e "print ($momentum + $momentum_inc);"`
 done
