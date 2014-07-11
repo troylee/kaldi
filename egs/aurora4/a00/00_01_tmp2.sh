@@ -27,9 +27,9 @@ log_end(){
 }
 
 # experiment with dropout fine-tuning
-train_dnn2d(){
-  log_start "dnn2d [train]"
-  dir=exp_multi/dnn2d
+train_dnn2e(){
+  log_start "dnn2e [train]"
+  dir=exp_multi/dnn2e
   ali=exp_multi/tri1a_ali/train_multi
   ali_dev=exp_multi/tri1a_ali/dev_multi
   ori_mlp=exp_multi/dnn2c/nnet.init
@@ -39,9 +39,10 @@ train_dnn2d(){
   steps/train_nnet_dropout.sh --norm-vars true --splice 5 --mlp-init $dir/nnet.init \
     --alidir $ali --alidir-cv $ali_dev \
     --bunchsize 256 --l2-upperbound 15.0 \
+    --num-iters-momentum-adjust 9 \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
   utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
-  log_end "dnn2d [train]"
+  log_end "dnn2e [train]"
 }
-train_dnn2d
+train_dnn2e
 
