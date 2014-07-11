@@ -124,7 +124,7 @@ for depth in $(seq -f '%02g' $start_layer $nn_depth); do
 
   #Compose trasform + RBM + multiclass logistic regression
   echo "Compsing the nnet as transforms"
-  NEW_TRANSF=$dir/nnet/hid${depth}c_transf
+  NEW_TRANSF=$dir/hid${depth}c_transf
   [ ! -r $TRANSF ] && rm $NEW_TRANSF 2>/dev/null
   [ -r $TRANSF ] && cat $TRANSF > $NEW_TRANSF
   rbm-convert-to-nnet --binary=false ${RBM}_mmt${rbm_momentum_high} - >> $NEW_TRANSF
