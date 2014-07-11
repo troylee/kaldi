@@ -30,11 +30,9 @@ int main(int argc, char *argv[]) {
   try {
     const char *usage =
         "Perform forward propagation of RBM with utt-bias.\n"
-        "Usage:  rbm-uttbias-forward [options] <model-in> "
-        "<hidbias-rspecifier> <feature-rspecifier> <act-wspecifier>\n"
+        "Usage:  rbm-uttbias-forward [options] <model-in> <feature-rspecifier> <act-wspecifier>\n"
         "e.g.: \n"
-        " rbm-uttbias-forward rbm.mdl ark:hidbias.ark"
-        "scp:train.scp ark:act.ark\n";
+        " rbm-uttbias-forward rbm.mdl --hidbias='ark:hidbias.ark' scp:train.scp ark:act.ark\n";
 
     ParseOptions po(usage);
 
@@ -44,20 +42,20 @@ int main(int argc, char *argv[]) {
     bool apply_log = false;
     po.Register("apply-log", &apply_log, "Apply log to the activations");
 
-    std::string feature_transform;
+    std::string feature_transform, hidbias_rspecifier;
     po.Register("feature-transform", &feature_transform, "Feature transform Neural Network");
+    po.Register("hidbias", &hidbias_rspecifier, "Hidden bias for each utterance");
 
     po.Read(argc, argv);
 
-    if (po.NumArgs() != 4 ) {
+    if (po.NumArgs() != 3 ) {
       po.PrintUsage();
       exit(1);
     }
 
     std::string model_filename = po.GetArg(1),
-        hidbias_rspecifier = po.GetArg(2),
-        feature_rspecifier = po.GetArg(3),
-        act_wspecifier = po.GetArg(4);
+        feature_rspecifier = po.GetArg(2),
+        act_wspecifier = po.GetArg(3);
      
     using namespace kaldi;
     typedef kaldi::int32 int32;
@@ -91,14 +89,14 @@ int main(int argc, char *argv[]) {
       std::string key = feature_reader.Key();
       KALDI_VLOG(3) << key;
 
-      if(!hidbias_reader.HasKey(key)){
-        KALDI_WARN << "Utterance " << key <<": Skipped because no hidbias found.";
-        num_other_error++;
-        continue;
+      if(hidbias_reader.IsOpen()){
+        if(!hidbias_reader.HasKey(key)){
+          KALDI_WARN << "Utterance " << key <<": Skipped because no hidbias found.";
+          num_other_error++;
+          continue;
+        }
+        rbm.SetHiddenBias(hidbias_reader.Value(key));
       }
-      const Vector<BaseFloat> &hidbias=hidbias_reader.Value(key);
-
-      rbm.SetHiddenBias(hidbias);
 
       const Matrix<BaseFloat> &mat = feature_reader.Value();
 
