@@ -22,7 +22,6 @@
 #include "nnet/nnet-biasedlinearity.h"
 #include "nnet/nnet-rbm.h"
 #include "nnet/nnet-various.h"
-#include "nnet/nnet-dropoutbl.h"
 #include "nnet/nnet-cmvnbl.h"
 #include "nnet/nnet-posnegbl.h"
 #include "nnet/nnet-gaussbl.h"
@@ -40,7 +39,8 @@ const struct Component::key_value Component::kMarkerMap[] = { {
     Component::kBiasedLinearity, "<biasedlinearity>" }, { Component::kSigmoid,
     "<sigmoid>" }, { Component::kSoftmax, "<softmax>" }, { Component::kRbm,
     "<rbm>" }, { Component::kExpand, "<expand>" },
-    { Component::kCopy, "<copy>" }, { Component::kDropoutBL, "<dropoutbl>" },
+    { Component::kCopy, "<copy>" }, { Component::kDropout, "<dropout>" },
+    { Component::kScale, ",<scale>"},
     { Component::kRelu, "<relu>"}, {Component::kSoftRelu, "<softrelu>"},
     {Component::kCMVNBL, "<cmvnbl>"}, {Component::kPosNegBL, "<posnegbl>"},
     {Component::kGaussBL, "<gaussbl>"}, {Component::kMaskedBL, "<maskedbl>"},
@@ -115,9 +115,6 @@ Component* Component::Read(std::istream &is, bool binary, Nnet *nnet) {
     case Component::kCopy:
       p_comp = new Copy(dim_in, dim_out, nnet);
       break;
-    case Component::kDropoutBL:
-      p_comp = new DropoutBL(dim_in, dim_out, nnet);
-      break;
     case Component::kCMVNBL:
       p_comp = new CMVNBL(dim_in, dim_out, nnet);
       break;
@@ -145,6 +142,12 @@ Component* Component::Read(std::istream &is, bool binary, Nnet *nnet) {
     case Component::kSoftRelu:
       p_comp = new SoftRelu(dim_in, dim_out, nnet);
       break;
+    case Component::kDropout:
+      p_comp = new Dropout(dim_in, dim_out, nnet);
+      break;
+    case Component::kScale:
+      p_comp = new Scale(dim_in, dim_out, nnet);
+      break;
     case Component::kUnknown:
     default:
       KALDI_ERR<< "Missing type: " << token;
@@ -161,10 +164,6 @@ void Component::Write(std::ostream &os, bool binary) const {
   if (!binary)
     os << "\n";
   this->WriteData(os, binary);
-}
-
-void Component::WriteAsBiasedLinearity(std::ostream &os, bool binary) const {
-  KALDI_ASSERT(GetType()==Component::kDropoutBL);
 }
 
 }  // namespace

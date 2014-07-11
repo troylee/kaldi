@@ -336,6 +336,9 @@ class MatrixBase {
   /// matrix and return normalizer (log sum of exponentials).
   Real ApplySoftMax();
   
+  /// Apply row L2 norm upper bound
+  void ApplyRowL2UpperBound(Real bound);
+
   /** Uses Svd to compute the eigenvalue decomposition of a symmetric positive
    * semi-definite matrix: (*this) = rP * diag(rS) * rP^T, with rP an
    * orthogonal matrix so rP^{-1} = rP^T.   Throws exception if input was not

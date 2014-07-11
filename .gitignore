@@ -556,6 +556,8 @@ tools/sph2pipe_v2.5/
 /src/nnetbin/ubm-info
 /src/nnetbin/weight-tied-ae-train
 /src/nnetbin/write-ubm-to-matlab
+/src/nnetbin/nnet-add-dropout
+/src/nnetbin/nnet-rm-dropout
 
 # /src/nnet_cpu
 /src/nnet_cpu/.depend.mk

@@ -416,6 +416,32 @@ static void _apply_mask(Real* mat, const char* mask, MatrixDim dmat, MatrixDim d
 }
 
 
+template<typename Real>
+__global__
+static void _apply_row_l2upperbound(Real* mat, Real bound, MatrixDim d) {
+  int32_cuda j = blockIdx.x * blockDim.x + threadIdx.x;
+  if(j >= d.rows) return;
+  
+  // find the max_mag
+  double max_mag = abs(mat[j*d.stride]);
+  for(int32_cuda i=1; i<d.cols; i++){
+    if(max_mag < abs(mat[i+j*d.stride])){
+      max_mag = abs(mat[i+j*d.stride]);
+    }
+  }
+  // divide the values by max_mag to avoid overflow and compute the l2norm
+  double l2norm = 0.0;
+  for(int32_cuda i=0; i<d.cols; i++){
+    l2norm += (mat[i+j*d.stride]/max_mag) * (mat[i+j*d.stride]/max_mag);
+  }
+  l2norm=sqrt(l2norm);
+  // normalize if needed
+  if(max_mag * l2norm > bound){
+    for(int32_cuda i=0; i<d.cols; i++){
+      mat[i+j*d.stride] = ( (mat[i+j*d.stride] / max_mag) / l2norm) * bound;
+    } 
+  }
+}
 
 /*
  * CuVector
@@ -504,7 +530,7 @@ static void _diff_relu(Real*eout, const Real*e, const Real*y, MatrixDim d) {
   int32_cuda j = blockIdx.y * blockDim.y + threadIdx.y;
   int32_cuda index = i + j*d.stride;
   if( i < d.cols  && j < d.rows ) 
-    eout[index] = (y[index] > 0.0) * e[index];
+    eout[index] = (y[index] > 0.0) ? e[index] : 0.0;
 }
 
 template<typename Real>
@@ -829,6 +855,9 @@ void cudaF_add_vec_to_partial_rows(dim3 Gr, dim3 Bl, float alpha, int32_cuda off
   _add_vec_to_partial_rows<<<Gr,Bl>>>(alpha,offset,row,dim,beta,dst,d);
 }
 
+void cudaF_apply_row_l2upperbound(size_t Gr, size_t Bl, float *mat, float bound, MatrixDim d){
+  _apply_row_l2upperbound<<<Gr,Bl>>>(mat,bound,d);
+}
 
 // CURRENTLY UNUSED...
 void cudaF_apply_mask(dim3 Gr, dim3 Bl, float* mat, const char* mask, MatrixDim dmat, MatrixDim dmask) {
@@ -838,6 +867,8 @@ void cudaF_apply_mask(dim3 Gr, dim3 Bl, float* mat, const char* mask, MatrixDim 
 void cudaF_log_add_exp_mat(dim3 Gr, dim3 Bl, const float* A, float* dst, MatrixDim d) {
   _log_add_exp_mat<<<Gr,Bl>>>(A,dst,d); 
 }
+
+
 
 /*
  * CuVector
@@ -1008,6 +1039,9 @@ void cudaD_add_vec_to_partial_rows(dim3 Gr, dim3 Bl, double alpha, int32_cuda of
   _add_vec_to_partial_rows<<<Gr,Bl>>>(alpha,offset,row,dim,beta,dst,d);
 }
 
+void cudaD_apply_row_l2upperbound(size_t Gr, size_t Bl, double *mat, double bound, MatrixDim d){
+  _apply_row_l2upperbound<<<Gr,Bl>>>(mat,bound,d);
+}
 
 // CURRENTLY UNUSED...
 void cudaD_apply_mask(dim3 Gr, dim3 Bl, double* mat, const char* mask, MatrixDim dmat, MatrixDim dmask) {

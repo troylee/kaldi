@@ -58,7 +58,6 @@ class Component {
     kBiasedLinearity,
     kSharedLinearity, 
     kKrylovLinearity,
-    kDropoutBL,
     kCMVNBL,
     kPosNegBL,
     kGaussBL,
@@ -72,6 +71,8 @@ class Component {
     kSigmoid,
     kRelu,
     kSoftRelu,
+    kDropout,
+    kScale,
 
     kTranform =  0x0400,
     kRbm,
@@ -130,9 +131,6 @@ class Component {
   static Component* Read(std::istream &is, bool binary, Nnet *nnet);
   /// Write component to stream
   void Write(std::ostream &os, bool binary) const;
-  /// Write component to stream
-  void WriteAsBiasedLinearity(std::ostream &os, bool binary) const;
-
 
 
   // abstract interface for propagation/backpropagation 
@@ -172,7 +170,7 @@ class UpdatableComponent : public Component {
  public: 
   UpdatableComponent(MatrixIndexT input_dim, MatrixIndexT output_dim, Nnet *nnet)
     : Component(input_dim, output_dim, nnet),
-      learn_rate_(0.0), momentum_(0.0), l2_penalty_(0.0), l1_penalty_(0.0), average_grad_(false) { }
+      learn_rate_(0.0), momentum_(0.0), l2_penalty_(0.0), l2_upper_bound_(0.0), l1_penalty_(0.0), average_grad_(false) { }
   virtual ~UpdatableComponent() { }
 
   /// Check if contains trainable parameters 
@@ -211,6 +209,15 @@ class UpdatableComponent : public Component {
     return l2_penalty_; 
   }
 
+  /// Sets L2 upper bound
+  void SetL2UpperBound(BaseFloat bound) {
+    l2_upper_bound_ = bound;
+  }
+  /// Gets L2 upper bound
+  BaseFloat GetL2UpperBound() {
+    return l2_upper_bound_;
+  }
+
   /// Sets L1 penalty (sparisity promotion)
   void SetL1Penalty(BaseFloat l1) { 
     l1_penalty_ = l1; 
@@ -233,6 +240,7 @@ class UpdatableComponent : public Component {
   BaseFloat learn_rate_; ///< learning rate (0.0..0.01)
   BaseFloat momentum_;   ///< momentum value (0.0..1.0)
   BaseFloat l2_penalty_; ///< L2 regularization constant (0.0..1e-4)
+  BaseFloat l2_upper_bound_; ///< L2 upper bound for the weight matrix (1.0...)
   BaseFloat l1_penalty_; ///< L1 regularization constant (0.0..1e-4)
   bool average_grad_;    ///< whether divide the gradient by number of samples
 };

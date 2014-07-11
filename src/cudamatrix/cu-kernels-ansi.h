@@ -63,7 +63,7 @@ void cudaF_add_vec_to_cols(dim3 Gr, dim3 Bl, float alpha, const float *col, floa
 void cudaF_add_vec_to_rows(dim3 Gr, dim3 Bl, float alpha, const float *row, float beta, float *dst, MatrixDim d);
 void cudaF_add_vec_to_partial_rows(dim3 Gr, dim3 Bl, float alpha, int32_cuda offset, const float *row, int32_cuda dim, float beta, float *dst, MatrixDim d);
 void cudaF_log_add_exp_mat(dim3 Gr, dim3 Bl, const float *A, float *dst, MatrixDim d);
-
+void cudaF_apply_row_l2upperbound(size_t Gr, size_t Bl, float *mat, float bound, MatrixDim d);
 /*
  * CuVector
  */
@@ -122,7 +122,8 @@ void cudaD_add_vec_to_cols(dim3 Gr, dim3 Bl, double alpha, const double *col, do
 void cudaD_add_vec_to_rows(dim3 Gr, dim3 Bl, double alpha, const double *row, double beta, double *dst, MatrixDim d);
 void cudaD_add_vec_to_partial_rows(dim3 Gr, dim3 Bl, double alpha, int32_cuda offset, const double *row, int32_cuda dim, double beta, double *dst, MatrixDim d);
 void cudaD_log_add_exp_mat(dim3 Gr, dim3 Bl, const double *A, double *dst, MatrixDim d);
- 
+void cudaD_apply_row_l2upperbound(size_t Gr, size_t Bl, double *mat, double bound, MatrixDim d);
+
 /*
  * CuVector
  */

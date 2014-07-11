@@ -2197,6 +2197,21 @@ Real MatrixBase<Real>::ApplySoftMax() {
   return max + log(sum);
 }
 
+template<typename Real>
+void MatrixBase<Real>::ApplyRowL2UpperBound(Real bound) {
+  Real bound2 = bound * bound;
+  for (MatrixIndexT i=0; i < num_rows_; i++) {
+    Real l2norm = 0.0;
+    for(MatrixIndexT j=0; j < num_cols_; j++)
+      l2norm += (*this)(i,j) * (*this)(i,j);
+    if (l2norm > bound2){
+      l2norm = sqrt(l2norm);
+      for(MatrixIndexT j=0; j < num_cols_; j++)
+        (*this)(i,j) = (*this)(i,j) * bound / l2norm;
+    }
+  }
+}
+
 
 template<class Real>
 template<class OtherReal>

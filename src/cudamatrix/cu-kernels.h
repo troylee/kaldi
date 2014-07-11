@@ -63,7 +63,7 @@ template<typename Real> inline void cuda_add_vec_to_cols(dim3 Gr, dim3 Bl, Real 
 template<typename Real> inline void cuda_add_vec_to_rows(dim3 Gr, dim3 Bl, Real alpha, const Real *row, Real beta, Real *dst, MatrixDim d) { KALDI_ERR << __func__ << " Not implemented!"; }
 template<typename Real> inline void cuda_add_vec_to_partial_rows(dim3 Gr, dim3 Bl, Real alpha, int32_cuda offset, const Real *row, int32_cuda dim, Real beta, Real *dst, MatrixDim d) { KALDI_ERR << __func__ << "Not implemented!"; }
 template<typename Real> inline void cuda_log_add_exp_mat(dim3 Gr, dim3 Bl, const Real *A, Real *dst, MatrixDim d) { KALDI_ERR << __func__ << " Not implemented!"; }
-
+template<typename Real> inline void cuda_apply_row_l2upperbound(size_t Gr, size_t Bl, Real *mat, Real bound, MatrixDim d) { KALDI_ERR << __func__ << " Not implemented!"; }
 
 /*
  * CuVector
@@ -125,7 +125,8 @@ template<> inline void cuda_add_vec_to_cols<float>(dim3 Gr, dim3 Bl, float alpha
 template<> inline void cuda_add_vec_to_rows<float>(dim3 Gr, dim3 Bl, float alpha, const float *row, float beta, float *dst, MatrixDim d) { cudaF_add_vec_to_rows(Gr,Bl,alpha,row,beta,dst,d); }
 template<> inline void cuda_add_vec_to_partial_rows<float>(dim3 Gr, dim3 Bl, float alpha, int32_cuda offset, const float *row, int32_cuda dim, float beta, float *dst, MatrixDim d) {cudaF_add_vec_to_partial_rows(Gr,Bl,alpha,offset,row,dim,beta,dst,d); }
 template<> inline void cuda_log_add_exp_mat<float>(dim3 Gr, dim3 Bl, const float *A, float *dst, MatrixDim d) { cudaF_log_add_exp_mat(Gr,Bl,A,dst,d); }
- 
+template<> inline void cuda_apply_row_l2upperbound<float>(size_t Gr, size_t Bl, float *mat, float bound, MatrixDim d) { cudaF_apply_row_l2upperbound(Gr,Bl,mat,bound,d); }
+
 /*
  * CuVector
  */
@@ -185,6 +186,7 @@ template<> inline void cuda_add_vec_to_cols<double>(dim3 Gr, dim3 Bl, double alp
 template<> inline void cuda_add_vec_to_rows<double>(dim3 Gr, dim3 Bl, double alpha, const double *row, double beta, double *dst, MatrixDim d) { cudaD_add_vec_to_rows(Gr,Bl,alpha,row,beta,dst,d); }
 template<> inline void cuda_add_vec_to_partial_rows<double>(dim3 Gr, dim3 Bl, double alpha, int32_cuda offset, const double *row, int32_cuda dim, double beta, double *dst, MatrixDim d) { cudaD_add_vec_to_partial_rows(Gr,Bl,alpha,offset,row,dim,beta,dst,d);}
 template<> inline void cuda_log_add_exp_mat<double>(dim3 Gr, dim3 Bl, const double *A, double *dst, MatrixDim d) { cudaD_log_add_exp_mat(Gr,Bl,A,dst,d); }
+template<> inline void cuda_apply_row_l2upperbound<double>(size_t Gr, size_t Bl, double *mat, double bound, MatrixDim d) { cudaD_apply_row_l2upperbound(Gr,Bl,mat,bound,d); }
  
 /*
  * CuVector
