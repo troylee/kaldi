@@ -42,6 +42,7 @@ void cudaI32_set_const(dim3 Gr, dim3 Bl, int32_cuda *mat, int32_cuda value, Matr
  * CuMatrix 
  */
 void cudaF_set_const(dim3 Gr, dim3 Bl, float *mat, float value, MatrixDim d);
+void cudaF_part_set_const(dim3 Gr, dim3 Bl, float *mat, float value, MatrixDim d, int32_cuda ro, int32_cuda r, int32_cuda co, int32_cuda c);
 void cudaF_binarize(dim3 Gr, dim3 Bl, float *mat, float thres, MatrixDim d);
 void cudaF_add_const(dim3 Gr, dim3 Bl, float *mat, float value, MatrixDim d);
 void cudaF_power(dim3 Gr, dim3 Bl, float *mat, float pow, MatrixDim d);
@@ -101,6 +102,7 @@ void cudaF_copy(dim3 Gr, dim3 Bl, float *y, const float *x, const int32_cuda *co
  * CuMatrix 
  */
 void cudaD_set_const(dim3 Gr, dim3 Bl, double *mat, double value, MatrixDim d);
+void cudaD_part_set_const(dim3 Gr, dim3 Bl, double *mat, double value, MatrixDim d, int32_cuda ro, int32_cuda r, int32_cuda co, int32_cuda c);
 void cudaD_binarize(dim3 Gr, dim3 Bl, double *mat, double thres, MatrixDim d);
 void cudaD_add_const(dim3 Gr, dim3 Bl, double *mat, double value, MatrixDim d);
 void cudaD_power(dim3 Gr, dim3 Bl, double *mat, double pow, MatrixDim d);

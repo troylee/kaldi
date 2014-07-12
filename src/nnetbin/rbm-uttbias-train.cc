@@ -105,11 +105,6 @@ int main(int argc, char *argv[]) {
       hidbias_writer.Open(hidbias_wspecifier);
     }
 
-    MseProgress mse;
-    
-    CuMatrix<BaseFloat> feats, feats_transf, pos_vis, pos_hid, neg_vis, neg_hid;
-    CuMatrix<BaseFloat> dummy_mse_mat;
-
     // biases
     Vector<BaseFloat> visbias(rbm.InputDim(), kSetZero),
         global_visbias(rbm.InputDim(), kSetZero),
@@ -123,6 +118,15 @@ int main(int argc, char *argv[]) {
     rbm.GetWeight(&init_weight);
     rbm.GetVisibleBias(&init_visbias);
     rbm.GetHiddenBias(&init_hidbias);
+
+    MseProgress mse;
+
+    CuMatrix<BaseFloat> feats, feats_transf, pos_vis, pos_hid, neg_vis, neg_hid;
+    CuMatrix<BaseFloat> dummy_mse_mat;
+
+    Matrix<BaseFloat> expanded_mat;
+    int32 zero_ro, zero_r;
+    int32 dim_vis = rbm.InputDim(), dim_hid = rbm.OutputDim();
 
     Timer tim;
     double time_next=0;
@@ -166,11 +170,25 @@ int main(int argc, char *argv[]) {
       }
 
       const Matrix<BaseFloat> &mat = feature_reader.Value();
+      /*
+       * To avoid too frequently allocating and freeing the GPU memory, which may lead to
+       * GPU memory overflow. That is due to the memory is not instantly freed after calling
+       * the free function.
+       * We hence maintain the data size unless a larger one comes.
+       */
+      if(mat.NumRows() > expanded_mat.NumRows()){
+        expanded_mat.Resize(mat.NumRows(), mat.NumCols(), kSetZero);
+      }
+      (SubMatrix<BaseFloat>(expanded_mat, 0, mat.NumRows(), 0, mat.NumCols())).CopyFromMat(mat);
+      // keep track the row indices that are 0
+      zero_ro = mat.NumRows(); // starting index of zero region
+      zero_r = expanded_mat.NumRows() - mat.NumRows(); // total number of rows are zero
+
       CuRand<BaseFloat> cu_rand;
       KALDI_VLOG(3) << "Feature size: [" << mat.NumRows() << ", " << mat.NumCols() << "]";
 
       // push features to GPU
-      feats.CopyFromMat(mat);
+      feats.CopyFromMat(expanded_mat);
       // possibly apply transforms
       rbm_transf.Feedforward(feats, &pos_vis);
 
@@ -185,10 +203,19 @@ int main(int argc, char *argv[]) {
         neg_hid.CopyFromMat(pos_hid);
         cu_rand.AddGaussNoise(&neg_hid);
       }
+
       // reconstruct pass
       rbm.Reconstruct(neg_hid, &neg_vis);
       // propagate negative examples
       rbm.Propagate(neg_vis, &neg_hid);
+
+      // reset zero regions
+      if(zero_r > 0){
+        pos_vis.PartSet(0.0, zero_ro, zero_r, 0, dim_vis);
+        pos_hid.PartSet(0.0, zero_ro, zero_r, 0, dim_hid);
+        neg_vis.PartSet(0.0, zero_ro, zero_r, 0, dim_vis);
+        neg_hid.PartSet(0,0, zero_ro, zero_r, 0, dim_hid);
+      }
       // update step
       rbm.RbmUpdate(pos_vis, pos_hid, neg_vis, neg_hid);
       // evaluate mean square error
@@ -209,7 +236,7 @@ int main(int argc, char *argv[]) {
         global_hidbias.AddVec(1.0, hidbias);
       }
 
-      tot_t += pos_vis.NumRows();
+      tot_t += mat.NumRows();
 
       num_done++;
       if(num_done % 1000 == 0) std::cout << num_done << ", " << std::flush;

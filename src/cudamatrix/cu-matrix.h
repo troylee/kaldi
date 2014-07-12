@@ -137,6 +137,7 @@ class CuMatrix {
   /// Math operations, some calling kernels
   void SetZero();
   void Set(Real value);
+  void PartSet(Real value, MatrixIndexT ro, MatrixIndexT r, MatrixIndexT co, MatrixIndexT c);
   void Binarize(Real thres);
   void Add(Real value);
   void ApplyLog();

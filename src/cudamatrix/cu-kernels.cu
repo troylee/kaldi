@@ -129,6 +129,16 @@ static void _set_const(Real* mat, Real value, MatrixDim d) {
 
 template<typename Real>
 __global__
+static void _part_set_const(Real* mat, Real value, MatrixDim d, int32_cuda ro, int32_cuda r, int32_cuda co, int32_cuda c) {
+  int32_cuda i = blockIdx.x * blockDim.x + threadIdx.x;
+  int32_cuda j = blockIdx.y * blockDim.y + threadIdx.y;
+  int32_cuda index = i + j*d.stride;
+  if ( i >= co && i < co+c && j >= ro  && j < ro+r )
+    mat[index] = value;
+}
+
+template<typename Real>
+__global__
 static void _binarize(Real* mat, Real thres, MatrixDim d){
   int32_cuda i = blockIdx.x * blockDim.x + threadIdx.x;
   int32_cuda j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -774,6 +784,10 @@ void cudaF_set_const(dim3 Gr, dim3 Bl, float* mat, float value, MatrixDim d) {
   _set_const<<<Gr,Bl>>>(mat,value,d); 
 }
 
+void cudaF_part_set_const(dim3 Gr, dim3 Bl, float* mat, float value, MatrixDim d, int32_cuda ro, int32_cuda r, int32_cuda co, int32_cuda c) {
+  _part_set_const<<<Gr,Bl>>>(mat,value,d,ro,r,co,c);
+}
+
 void cudaF_binarize(dim3 Gr, dim3 Bl, float* mat, float thres, MatrixDim d) {
   _binarize<<<Gr,Bl>>>(mat,thres,d);
 }
@@ -958,6 +972,11 @@ void cudaF_diff_xent(dim3 Gr, dim3 Bl, const int32_cuda* vec_tgt, float* mat_net
 void cudaD_set_const(dim3 Gr, dim3 Bl, double* mat, double value, MatrixDim d) {
   _set_const<<<Gr,Bl>>>(mat,value,d); 
 }
+
+void cudaD_part_set_const(dim3 Gr, dim3 Bl, double* mat, double value, MatrixDim d, int32_cuda ro, int32_cuda r, int32_cuda co, int32_cuda c) {
+  _part_set_const<<<Gr,Bl>>>(mat,value,d,ro,r,co,c);
+}
+
 
 void cudaD_binarize(dim3 Gr, dim3 Bl, double* mat, double thres, MatrixDim d) {
   _binarize<<<Gr,Bl>>>(mat,thres,d);

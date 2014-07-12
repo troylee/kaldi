@@ -78,7 +78,9 @@ int main(int argc, char *argv[]) {
     BaseFloatMatrixWriter act_writer(act_wspecifier);
 
     CuMatrix<BaseFloat> feats, feats_transf, acts, acts_bin;
-    Matrix<BaseFloat> acts_host;
+    Matrix<BaseFloat> expanded_mat, acts_host;
+
+    int32 zero_ro, zero_r;
 
     Timer tim;
     double time_next=0;
@@ -99,7 +101,6 @@ int main(int argc, char *argv[]) {
       }
 
       const Matrix<BaseFloat> &mat = feature_reader.Value();
-
       //check for NaN/inf
       for (int32 r = 0; r<mat.NumRows(); r++) {
         for (int32 c = 0; c<mat.NumCols(); c++) {
@@ -110,8 +111,22 @@ int main(int argc, char *argv[]) {
         }
       }
 
+      /*
+       * To avoid too frequently allocating and freeing the GPU memory, which may lead to
+       * GPU memory overflow. That is due to the memory is not instantly freed after calling
+       * the free function.
+       * We hence maintain the data size unless a larger one comes.
+       */
+      if(mat.NumRows() > expanded_mat.NumRows()){
+        expanded_mat.Resize(mat.NumRows(), mat.NumCols(), kSetZero);
+      }
+      (SubMatrix<BaseFloat>(expanded_mat, 0, mat.NumRows(), 0, mat.NumCols())).CopyFromMat(mat);
+      // keep track the row indices that are 0
+      zero_ro = mat.NumRows(); // starting index of zero region
+      zero_r = expanded_mat.NumRows() - mat.NumRows(); // total number of rows are zero
+
       // push features to GPU
-      feats.CopyFromMat(mat);
+      feats.CopyFromMat(expanded_mat);
       // possibly apply transforms
       rbm_transf.Feedforward(feats, &feats_transf);
 
@@ -132,7 +147,7 @@ int main(int argc, char *argv[]) {
       acts.CopyToMat(&acts_host);
 
       //check for NaN/inf
-      for (int32 r = 0; r < acts_host.NumRows(); r++) {
+      for (int32 r = 0; r < mat.NumRows(); r++) {
         for (int32 c = 0; c < acts_host.NumCols(); c++) {
           BaseFloat val = acts_host(r,c);
           if (val != val) KALDI_ERR << "NaN in NNet output of : " << feature_reader.Key();
@@ -141,12 +156,16 @@ int main(int argc, char *argv[]) {
         }
       }
 
-      act_writer.Write(key, acts_host);
+      act_writer.Write(key, SubMatrix<BaseFloat>(acts_host, zero_ro, zero_r, 0, acts_host.NumCols()));
 
       tot_t += mat.NumRows();
 
       num_done++;
       if(num_done % 1000 == 0) std::cout << num_done << ", " << std::flush;
+
+#if HAVE_CUDA==1
+    KALDI_VLOG(9) << CuDevice::Instantiate().GetFreeMemory();
+#endif
     
       Timer t_features;
       feature_reader.Next();
