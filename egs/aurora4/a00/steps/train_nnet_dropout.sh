@@ -59,7 +59,7 @@ train_opts=        # options, passed to the training script
 train_tool="nnet-train-xent-hardlab-frmshuff"       # optionally change the training tool
 
 # OTHER
-use_gpu_id= # manually select GPU id to run on, (-1 disables GPU)
+debug=false
 seed=777    # seed value used for training data shuffling and initialization
 # End configuration.
 
@@ -207,7 +207,7 @@ fi
 echo
 echo "# RUNNING THE NN-TRAINING (DROPOUT)"
 # stage 1: first 5 iterations of momentum adjusting
-steps/finetune_dropout.sh ${feature_transform:+ --feature-transform "$feature_transform"} \
+steps/finetune_dropout.sh --debug $debug ${feature_transform:+ --feature-transform "$feature_transform"} \
   --num_iters ${num_iters_momentum_adjust} --momentum-init ${momentum_init} --momentum-inc ${momentum_inc} \
   --learn-rate ${high_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
   --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} --average-grad ${average_grad} \
@@ -215,7 +215,7 @@ steps/finetune_dropout.sh ${feature_transform:+ --feature-transform "$feature_tr
   $mlp_init $dir/nnet/nnet_stage1
 
 # stage 2: 30 epochs of high learning rate
-steps/finetune_dropout.sh ${feature_transform:+ --feature-transform "$feature_transform"} \
+steps/finetune_dropout.sh --debug $debug ${feature_transform:+ --feature-transform "$feature_transform"} \
   --num_iters ${num_iters_high_lrate} --momentum-init ${momentum_final} --momentum-inc 0.0 \
   --learn-rate ${high_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
   --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} --average-grad ${average_grad} \
@@ -223,7 +223,7 @@ steps/finetune_dropout.sh ${feature_transform:+ --feature-transform "$feature_tr
   $dir/nnet/nnet_stage1 $dir/nnet/nnet_stage2
 
 # stage 3: 20 epochs of low learning rate
-steps/finetune_dropout.sh ${feature_transform:+ --feature-transform "$feature_transform"} \
+steps/finetune_dropout.sh --debug $debug ${feature_transform:+ --feature-transform "$feature_transform"} \
   --num_iters ${num_iters_low_lrate} --momentum-init ${momentum_final} --momentum-inc 0.0 \
   --learn-rate ${low_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
   --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} --average-grad ${average_grad} \

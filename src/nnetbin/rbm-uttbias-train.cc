@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
     }
 
     MseProgress mse;
-
+    
     CuMatrix<BaseFloat> feats, feats_transf, pos_vis, pos_hid, neg_vis, neg_hid;
     CuMatrix<BaseFloat> dummy_mse_mat;
 
@@ -167,6 +167,7 @@ int main(int argc, char *argv[]) {
 
       const Matrix<BaseFloat> &mat = feature_reader.Value();
       CuRand<BaseFloat> cu_rand;
+      KALDI_VLOG(3) << "Feature size: [" << mat.NumRows() << ", " << mat.NumCols() << "]";
 
       // push features to GPU
       feats.CopyFromMat(mat);
@@ -212,7 +213,10 @@ int main(int argc, char *argv[]) {
 
       num_done++;
       if(num_done % 1000 == 0) std::cout << num_done << ", " << std::flush;
-    
+
+#if HAVE_CUDA==1
+    KALDI_VLOG(9) << CuDevice::Instantiate().GetFreeMemory();
+#endif
       Timer t_features;
       feature_reader.Next();
       time_next += t_features.Elapsed();
