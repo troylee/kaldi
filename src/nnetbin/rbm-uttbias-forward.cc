@@ -42,6 +42,9 @@ int main(int argc, char *argv[]) {
     bool apply_log = false;
     po.Register("apply-log", &apply_log, "Apply log to the activations");
 
+    int32 buffer_size = 1000;
+    po.Register("buffer-size", &buffer_size, "The sample size used to pre-allocate memory");
+
     std::string feature_transform, hidbias_rspecifier;
     po.Register("feature-transform", &feature_transform, "Feature transform Neural Network");
     po.Register("hidbias", &hidbias_rspecifier, "Hidden bias for each utterance");
@@ -78,7 +81,7 @@ int main(int argc, char *argv[]) {
     BaseFloatMatrixWriter act_writer(act_wspecifier);
 
     CuMatrix<BaseFloat> feats, feats_transf, acts, acts_bin;
-    Matrix<BaseFloat> expanded_mat, acts_host;
+    Matrix<BaseFloat> expanded_mat(buffer_size, rbm.InputDim()), acts_host;
 
     int32 zero_ro, zero_r;
 

@@ -39,6 +39,9 @@ int main(int argc, char *argv[]) {
     bool binary = false;
     po.Register("binary", &binary, "Write output in binary mode");
 
+    int32 buffer_size = 1000;
+    po.Register("buffer-size", &buffer_size, "The sample size used to pre-allocate memory");
+
     BaseFloat learn_rate = 0.008,
         momentum = 0.0,
         l2_penalty = 0.0;
@@ -124,9 +127,9 @@ int main(int argc, char *argv[]) {
     CuMatrix<BaseFloat> feats, feats_transf, pos_vis, pos_hid, neg_vis, neg_hid;
     CuMatrix<BaseFloat> dummy_mse_mat;
 
-    Matrix<BaseFloat> expanded_mat;
     int32 zero_ro, zero_r;
     int32 dim_vis = rbm.InputDim(), dim_hid = rbm.OutputDim();
+    Matrix<BaseFloat> expanded_mat(buffer_size, dim_vis);
 
     Timer tim;
     double time_next=0;
