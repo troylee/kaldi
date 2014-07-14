@@ -37,9 +37,10 @@ train_dnn2e(){
   nnet-add-dropout --add-to-input=false --binary=false \
     --hidden-drop-ratio=0.5 $ori_mlp $dir/nnet.init 1 3 5 7 9 11 || exit 1;
   steps/train_nnet_dropout.sh --norm-vars true --splice 5 --mlp-init $dir/nnet.init \
-    --alidir $ali --alidir-cv $ali_dev \
+    --alidir $ali --alidir-cv $ali_dev --debug true \
     --bunchsize 256 --l2-upperbound 15.0 \
-    --debug true --momentum-inc 0.05 --num-iters-momentum-adjust 16 \
+    --momentum-init 0.1 --momentum-inc 0.05 --num-iters-momentum-adjust 8 \
+    --momentum-low 0.5 --momentum-high 0.9 \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
   utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
   log_end "dnn2e [train]"

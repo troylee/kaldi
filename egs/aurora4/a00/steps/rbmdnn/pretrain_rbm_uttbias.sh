@@ -45,6 +45,7 @@ learn_hidbias=true
 # misc.
 verbose=1 # enable per-cache reports
 debug=false
+buffersize=1000
 # End configuration.
 
 echo "$0 $@"  # Print the command line for logging
@@ -161,7 +162,8 @@ for iter in $(seq 1 $rbm_iters); do
       fi
       bias_opt="${bias_opt} --hidbias-out=ark:$dir/hidbias_iter${iter}.ark"
     fi
-    rbm-uttbias-train --binary=true $bias_opt $rbm_extra_opts --verbose=$verbose \
+    rbm-uttbias-train --binary=true --verbose=$verbose --buffer-size=$buffersize \
+      $bias_opt $rbm_extra_opts \
       --momentum=$momentum --learn-rate=$rbm_lrate --l2-penalty=$rbm_l2penalty \
       "$feats" ${cur_mdl} ${new_mdl} 2>$dir/log/rbm_tr_iter${iter}.log || exit 1
 

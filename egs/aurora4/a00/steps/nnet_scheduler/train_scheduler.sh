@@ -24,6 +24,8 @@ min_iters=
 start_halving_impr=0.01
 halving_factor=0.5
 end_learn_rate=0.000001
+
+learn_factors=
 # misc.
 verbose=1
 # tool
@@ -95,6 +97,7 @@ for iter in $(seq -w $max_iters); do
    --bunchsize=$bunchsize --cachesize=$cachesize --randomize=true --verbose=$verbose \
    --binary=true \
    ${feature_transform:+ --feature-transform=$feature_transform} \
+   ${learn_factors:+ --learn-factors=$learn_factors} \
    ${average_grad:+ "--average-grad=$average_grad"} \
    "$feats_tr" "$labels_tr" $mlp_best $mlp_next \
    2>> $log || exit 1; 

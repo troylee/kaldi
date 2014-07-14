@@ -81,7 +81,10 @@ int main(int argc, char *argv[]) {
     BaseFloatMatrixWriter act_writer(act_wspecifier);
 
     CuMatrix<BaseFloat> feats, feats_transf, acts, acts_bin;
-    Matrix<BaseFloat> expanded_mat(buffer_size, rbm.InputDim()), acts_host;
+
+    CuRand<BaseFloat> cu_rand;
+
+    Matrix<BaseFloat> expanded_mat(buffer_size, rbm.InputDim()), expanded_acts_host, acts_host;
 
     int32 zero_ro, zero_r;
 
@@ -138,7 +141,6 @@ int main(int argc, char *argv[]) {
 
       // alter the hidden values, so we can generate negative example
       if (rbm.HidType() == Rbm::BERNOULLI && binarize) {
-        CuRand<BaseFloat> cu_rand;
         cu_rand.BinarizeProbs(acts, &acts_bin);
         acts.CopyFromMat(acts_bin);
       }
@@ -147,10 +149,11 @@ int main(int argc, char *argv[]) {
         acts.ApplyLog();
       }
 
-      acts.CopyToMat(&acts_host);
+      acts.CopyToMat(&expanded_acts_host);
+      acts_host.CopyFromMat(SubMatrix<BaseFloat>(expanded_acts_host, zero_ro, zero_r, 0, expanded_acts_host.NumCols()));
 
       //check for NaN/inf
-      for (int32 r = 0; r < mat.NumRows(); r++) {
+      for (int32 r = 0; r < acts_host.NumRows(); r++) {
         for (int32 c = 0; c < acts_host.NumCols(); c++) {
           BaseFloat val = acts_host(r,c);
           if (val != val) KALDI_ERR << "NaN in NNet output of : " << feature_reader.Key();
@@ -159,7 +162,7 @@ int main(int argc, char *argv[]) {
         }
       }
 
-      act_writer.Write(key, SubMatrix<BaseFloat>(acts_host, zero_ro, zero_r, 0, acts_host.NumCols()));
+      act_writer.Write(key, acts_host);
 
       tot_t += mat.NumRows();
 

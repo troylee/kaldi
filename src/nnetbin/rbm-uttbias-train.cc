@@ -127,6 +127,8 @@ int main(int argc, char *argv[]) {
     CuMatrix<BaseFloat> feats, feats_transf, pos_vis, pos_hid, neg_vis, neg_hid;
     CuMatrix<BaseFloat> dummy_mse_mat;
 
+    CuRand<BaseFloat> cu_rand;
+
     int32 zero_ro, zero_r;
     int32 dim_vis = rbm.InputDim(), dim_hid = rbm.OutputDim();
     Matrix<BaseFloat> expanded_mat(buffer_size, dim_vis);
@@ -187,7 +189,6 @@ int main(int argc, char *argv[]) {
       zero_ro = mat.NumRows(); // starting index of zero region
       zero_r = expanded_mat.NumRows() - mat.NumRows(); // total number of rows are zero
 
-      CuRand<BaseFloat> cu_rand;
       KALDI_VLOG(3) << "Feature size: [" << mat.NumRows() << ", " << mat.NumCols() << "]";
 
       // push features to GPU
@@ -217,7 +218,7 @@ int main(int argc, char *argv[]) {
         pos_vis.PartSet(0.0, zero_ro, zero_r, 0, dim_vis);
         pos_hid.PartSet(0.0, zero_ro, zero_r, 0, dim_hid);
         neg_vis.PartSet(0.0, zero_ro, zero_r, 0, dim_vis);
-        neg_hid.PartSet(0,0, zero_ro, zero_r, 0, dim_hid);
+        neg_hid.PartSet(0.0, zero_ro, zero_r, 0, dim_hid);
       }
       // update step
       rbm.RbmUpdate(pos_vis, pos_hid, neg_vis, neg_hid);
@@ -245,7 +246,12 @@ int main(int argc, char *argv[]) {
       if(num_done % 1000 == 0) std::cout << num_done << ", " << std::flush;
 
 #if HAVE_CUDA==1
-    KALDI_VLOG(9) << CuDevice::Instantiate().GetFreeMemory();
+     KALDI_VLOG(9) << "feats: [" << feats.NumRows() << ", " << feats.NumCols() << "]";
+     KALDI_VLOG(9) << "pos_vis: [" << pos_vis.NumRows() << ", " << pos_vis.NumCols() << "]";
+     KALDI_VLOG(9) << "pos_hid: [" << pos_hid.NumRows() << ", " << pos_hid.NumCols() << "]";
+     KALDI_VLOG(9) << "neg_vis: [" << neg_vis.NumRows() << ", " << neg_vis.NumCols() << "]";
+     KALDI_VLOG(9) << "neg_hid: [" << neg_hid.NumRows() << ", " << neg_hid.NumCols() << "]";
+     KALDI_VLOG(9) << CuDevice::Instantiate().GetFreeMemory();
 #endif
       Timer t_features;
       feature_reader.Next();

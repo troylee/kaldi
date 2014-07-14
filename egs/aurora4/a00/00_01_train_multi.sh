@@ -214,7 +214,7 @@ align_dnn1b(){
   steps/align_nnet.sh --nj 4 --retry-beam 200 feat/fbank/dev_multi data/lang exp_multi/dnn1b exp_multi/dnn1b_ali/dev_multi || exit 1;
   log_end "dnn1b [realign-dev_multi]"
 }
-align_dnn1b
+#align_dnn1b
 
 train_dnn1c(){
   log_start "dnn1c [train]"
@@ -229,7 +229,7 @@ train_dnn1c(){
   utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
   log_end "dnn1c [train]" 
 }
-train_dnn1c
+#train_dnn1c
 
 align_dnn1c(){
   #nnet realignments
@@ -241,7 +241,7 @@ align_dnn1c(){
   steps/align_nnet.sh --nj 4 --retry-beam 200 feat/fbank/dev_multi data/lang exp_multi/dnn1c exp_multi/dnn1c_ali/dev_multi || exit 1;
   log_end "dnn1c [realign-dev_multi]"
 }
-align_dnn1c
+#align_dnn1c
 
 train_dnn1d(){
   log_start "dnn1d [train]"
@@ -256,7 +256,7 @@ train_dnn1d(){
   utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
   log_end "dnn1d [train]" 
 }
-train_dnn1d
+#train_dnn1d
 
 align_dnn1d(){
   #nnet realignments
@@ -268,7 +268,7 @@ align_dnn1d(){
   steps/align_nnet.sh --nj 4 --retry-beam 200 feat/fbank/dev_multi data/lang exp_multi/dnn1d exp_multi/dnn1d_ali/dev_multi || exit 1;
   log_end "dnn1d [realign-dev_multi]"
 }
-align_dnn1d
+#align_dnn1d
 
 train_dnn1e(){
   log_start "dnn1e [train]"
@@ -283,7 +283,40 @@ train_dnn1e(){
   utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
   log_end "dnn1e [train]" 
 }
-train_dnn1e
+#train_dnn1e
 
+#--------------------
+# 7 hidden layers
+train_dnn1d_7h(){
+  log_start "dnn1d_7h [train]"
+  dir=exp_multi/dnn1d_7h
+  ali=exp_multi/dnn1c_ali/train_multi
+  ali_dev=exp_multi/dnn1c_ali/dev_multi
+  dbn=exp_multi/dnn1a_pretrain/hid07c_transf
+  mkdir -p $dir/log
+  steps/train_nnet.sh --norm-vars true --dbn $dbn --hid-layers 0 --learn-rate 0.015 \
+    --alidir $ali --alidir-cv $ali_dev \
+    feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  log_end "dnn1d_7h [train]"
+}
+#train_dnn1d_7h
+
+#--------------------
+# RBM-DNN h07r01
+train_rbmdnn1a(){
+  log_start "rbmdnn1a [train]"
+  dir=exp_multi/rbmdnn1a
+  ali=exp_multi/dnn1c_ali/train_multi
+  ali_dev=exp_multi/dnn1c_ali/dev_multi
+  mlp_init=exp_multi/dnn1d_7h/nnet.init
+  mkdir -p $dir/log
+  steps/train_nnet.sh --norm-vars true --mlp-init ${mlp_init} --learn-rate 0.015 \
+    --learn-factors "0,1,1,1,1,1,1,1" --alidir $ali --alidir-cv $ali_dev \
+    feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  log_end "rbmdnn1a [train]"
+}
+#train_rbmdnn1a
 
 

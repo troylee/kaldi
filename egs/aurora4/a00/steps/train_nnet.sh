@@ -41,6 +41,8 @@ learn_rate=0.015 #learning rate
 bunchsize=128 #size of the Stochastic-GD update block
 l2_penalty=0.0 #L2 regularization penalty
 
+learn_factors=
+
 train_opts=        # options, passed to the training script
 train_tool="nnet-train-xent-hardlab-frmshuff"       # optionally change the training tool
 
@@ -194,6 +196,7 @@ echo
 echo "# RUNNING THE NN-TRAINING SCHEDULER"
 steps/nnet_scheduler/train_scheduler.sh \
   ${feature_transform:+ --feature-transform "$feature_transform"} \
+  ${learn_factors:+ --learn-factors "$learn_factors"} \
   --learn-rate $learn_rate --max-iters $max_iters \
   --start-halving-impr $start_halving_impr \
   --halving-factor $halving_factor \
