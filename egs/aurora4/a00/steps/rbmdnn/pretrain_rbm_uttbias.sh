@@ -39,6 +39,7 @@ rbm_extra_opts=
 norm_vars=true     # CMVN or CMN
 splice=5           # Temporal splicingl
 
+learn_weight=true
 learn_visbias=true
 learn_hidbias=true
 
@@ -130,12 +131,11 @@ if [ -z "$init_rbm" ]; then
   #initialize
   echo "Initializing '$RBM.init'"
   utils/gen_rbm_init.py --dim=${num_fea}:${num_hid} --gauss --negbias --vistype=gauss --hidtype=bern > $RBM.init
-else
-  cp $init_rbm $RBM.init
+  init_rbm=$RBM.init
 fi
 
 # low momentum
-cur_mdl=${RBM}.init
+cur_mdl=${init_rbm}
 momentum=$rbm_momentum_low
 echo "RBM training:"
 for iter in $(seq 1 $rbm_iters); do
@@ -146,8 +146,9 @@ for iter in $(seq 1 $rbm_iters); do
     momentum=$rbm_momentum_high
   fi
 
-  if [ -e $dir/.done_iter${iter} ] && [ -e $new_mdl ]; then
+  if [ -e $dir/.done_iter${iter} ] ; then
     printf "skipping ... \n" 
+    $learn_weight && cur_mdl=$new_mdl ;
   else
     bias_opt=""
     if $learn_visbias ; then
@@ -162,28 +163,38 @@ for iter in $(seq 1 $rbm_iters); do
       fi
       bias_opt="${bias_opt} --hidbias-out=ark:$dir/hidbias_iter${iter}.ark"
     fi
-    rbm-uttbias-train --binary=true --verbose=$verbose --buffer-size=$buffersize \
-      $bias_opt $rbm_extra_opts \
-      --momentum=$momentum --learn-rate=$rbm_lrate --l2-penalty=$rbm_l2penalty \
-      "$feats" ${cur_mdl} ${new_mdl} 2>$dir/log/rbm_tr_iter${iter}.log || exit 1
+    if $learn_weight ; then
+      [ ! -e ${cur_mdl} ] && echo "${cur_mdl} not found!" && exit 1;
+      rbm-uttbias-train --binary=true --verbose=$verbose --buffer-size=$buffersize \
+        $bias_opt $rbm_extra_opts \
+        --momentum=$momentum --learn-rate=$rbm_lrate --l2-penalty=$rbm_l2penalty \
+        "$feats" ${cur_mdl} ${new_mdl} 2>$dir/log/rbm_tr_iter${iter}.log || exit 1
+
+      (( ! $debug )) && [ ${iter} -gt 1 ] && rm ${cur_mdl} ;
+      # update the current model 
+      cur_mdl=$new_mdl
+    else
+      rbm-uttbias-train --binary=true --verbose=$verbose --buffer-size=$buffersize \
+        $bias_opt $rbm_extra_opts \
+        --momentum=$momentum --learn-rate=$rbm_lrate --l2-penalty=$rbm_l2penalty \
+        "$feats" ${init_rbm} 2>$dir/log/rbm_tr_iter${iter}.log || exit 1
+    fi
 
     # clean up the intermediate bias estimates
-    if [ ! $debug ] && [ ${iter} -gt 1 ]; then
-      rm ${cur_mdl}
-      rm $dir/visbias_iter$((iter-1)).ark
-      rm $dir/hidbias_iter$((iter-1)).ark
+    if ! $debug && [ ${iter} -gt 1 ]; then
+      $learn_visbias && rm $dir/visbias_iter$((iter-1)).ark
+      $learn_hidbias && rm $dir/hidbias_iter$((iter-1)).ark
     fi
     touch $dir/.done_iter${iter}
     printf "done\n"
   fi
-  # update the current model 
-  cur_mdl=$new_mdl
+  
 done
 
 # link the final rbm
-ln -s ${RBM}_iter${iter} $dir/final.rbm
-ln -s $dir/visbias_iter${iter}.ark $dir/final_visbias.ark
-ln -s $dir/hidbias_iter${iter}.ark $dir/final_hidbias.ark
+$learn_weight && ( cd $dir; ln -s rbm_uttbias_iter${iter} final.rbm; )
+$learn_visbias && ( cd $dir; ln -s visbias_iter${iter}.ark final_visbias.ark; )
+$learn_hidbias && (cd $dir; ln -s hidbias_iter${iter}.ark final_hidbias.ark; )
 
 echo "RBM training finished."
 

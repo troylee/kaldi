@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
         "Perform forward propagation of RBM with utt-bias.\n"
         "Usage:  rbm-uttbias-forward [options] <model-in> <feature-rspecifier> <act-wspecifier>\n"
         "e.g.: \n"
-        " rbm-uttbias-forward rbm.mdl --hidbias='ark:hidbias.ark' scp:train.scp ark:act.ark\n";
+        " rbm-uttbias-forward --hidbias='ark:hidbias.ark' rbm.mdl scp:train.scp ark:act.ark\n";
 
     ParseOptions po(usage);
 

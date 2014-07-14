@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
     rbm.GetVisibleBias(&init_visbias);
     rbm.GetHiddenBias(&init_hidbias);
 
-    MseProgress mse;
+    Mse mse;
 
     CuMatrix<BaseFloat> feats, feats_transf, pos_vis, pos_hid, neg_vis, neg_hid;
     CuMatrix<BaseFloat> dummy_mse_mat;

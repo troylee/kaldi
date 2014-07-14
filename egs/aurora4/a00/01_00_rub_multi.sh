@@ -43,6 +43,19 @@ pretrain_rub1a(){
 }
 #pretrain_rub1a
 
+pretain_rub1a_test(){
+  #RBM pretrain
+  log_start "rub1a [test pretrain]"
+  for i in `seq -f "%02g" 1 14`; do
+    x=test${i}
+    dir=exp_multi/rub1a_pretrain/test/$x
+    rbm_init=exp_multi/rub1a_pretrain/final.rbm
+    mkdir -p $dir/log
+    steps/rbmdnn/pretrain_rbm_uttbias.sh --learn-weight false --learn-visbias true --learn-hidbias true --debug false --buffersize 2100 --norm-vars true --splice 5 --init-rbm ${rbm_init} feat/fbank/$x $dir || exit 1;
+  done
+  log_end "rub1a [test pretrain]"
+}
+pretain_rub1a_test
 
 ##--------------------
 ## RBM with utterance dependent hidden biases only
