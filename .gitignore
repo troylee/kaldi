@@ -469,6 +469,7 @@ tools/sph2pipe_v2.5/
 
 # /src/nnetbin/
 /src/nnetbin/.depend.mk
+/src/nnetbin/rbmdnn-train-xent
 /src/nnetbin/nnet-train-xent-hardlab-perutt
 /src/nnetbin/nnet-train-xent-hardlab-frmshuff
 /src/nnetbin/nnet-train-mse-tgtmat-frmshuff

@@ -22,7 +22,7 @@ BINFILES = nnet-train-xent-hardlab-perutt nnet-train-xent-hardlab-frmshuff nnet-
 		   nnet-cleanh-train-frmshuff codebl-create codebl-train-xent-hardlab-frmshuff codevec-init \
 		   codevec-train-xent-hardlab-frmshuff codebl-forward ideal-hidmask-forward lin-train-perutt-single-iter \
 		   scale-nnet nnet-hidmask-mse-tgtmat-frmshuff nnet-hidmask-forward ideal-hidmask-stats nnet-train-stereo \
-		   rbm-uttbias-train rbm-uttbias-forward nnet-add-dropout nnet-rm-dropout
+		   rbm-uttbias-train rbm-uttbias-forward nnet-add-dropout nnet-rm-dropout rbmdnn-train-xent
 
 OBJFILES =
 
