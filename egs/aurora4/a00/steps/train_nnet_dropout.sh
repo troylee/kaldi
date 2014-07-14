@@ -218,7 +218,7 @@ steps/finetune_dropout.sh --debug $debug ${feature_transform:+ --feature-transfo
 # stage 2: 30 epochs of high learning rate, low_momentum
 steps/finetune_dropout.sh --debug $debug ${feature_transform:+ --feature-transform "$feature_transform"} \
   --num_iters ${num_iters_high_lrate} --momentum-init ${momentum_low} --momentum-inc 0.0 \
-  --learn-rate ${high_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
+  --learn-rate ${low_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
   --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} --average-grad ${average_grad} \
   "$feats_tr" "$feats_cv" "$labels_tr" "$labels_cv" \
   $dir/nnet/nnet_stage1 $dir/nnet/nnet_stage2

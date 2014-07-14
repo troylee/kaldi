@@ -43,6 +43,17 @@ pretrain_rub1a(){
 }
 #pretrain_rub1a
 
+pretrain_rub1a_dev(){
+  #RBM pretrain
+  log_start "rub1a [dev pretrain]"
+  dir=exp_multi/rub1a_pretrain/dev_multi
+  rbm_init=exp_multi/rub1a_pretrain/final.rbm
+  mkdir -p $dir/log
+  steps/rbmdnn/pretrain_rbm_uttbias.sh --learn-weight false --learn-visbias true --learn-hidbias true --debug false --buffersize 2100 --norm-vars true --splice 5 --init-rbm ${rbm_init} feat/fbank/dev_multi $dir || exit 1;
+  log_end "rub1a [dev pretrain]"
+}
+#pretrain_rub1a_dev
+
 pretain_rub1a_test(){
   #RBM pretrain
   log_start "rub1a [test pretrain]"
@@ -70,6 +81,17 @@ pretrain_rub2a(){
 }
 #pretrain_rub2a
 
+pretrain_rub2a_dev(){
+  #RBM pretrain
+  log_start "rub2a [dev pretrain]"
+  dir=exp_multi/rub2a_pretrain/dev_multi
+  rbm_init=exp_multi/rub2a_pretrain/final.rbm
+  mkdir -p $dir/log
+  steps/rbmdnn/pretrain_rbm_uttbias.sh --learn-weight false --learn-visbias false --learn-hidbias true --debug false --buffersize 2100 --norm-vars true --splice 5 --init-rbm ${rbm_init} feat/fbank/dev_multi $dir || exit 1;
+  log_end "rub2a [dev pretrain]"
+}
+#pretrain_rub2a_dev
+
 
 ##--------------------
 ## RBM with utterance dependent visible biases only
@@ -84,6 +106,16 @@ pretrain_rub3a(){
 }
 #pretrain_rub3a
 
+pretrain_rub3a_dev(){
+  #RBM pretrain
+  log_start "rub3a [dev pretrain]"
+  dir=exp_multi/rub3a_pretrain/dev_multi
+  rbm_init=exp_multi/rub3a_pretrain/final.rbm
+  mkdir -p $dir/log
+  steps/rbmdnn/pretrain_rbm_uttbias.sh --learn-weight false --learn-visbias true --learn-hidbias false --debug false --buffersize 2100 --norm-vars true --splice 5 --init-rbm ${rbm_init} feat/fbank/dev_multi $dir || exit 1;
+  log_end "rub3a [dev pretrain]"
+}
+#pretrain_rub3a_dev
 
 
 

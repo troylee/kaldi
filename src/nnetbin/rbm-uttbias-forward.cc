@@ -84,9 +84,7 @@ int main(int argc, char *argv[]) {
 
     CuRand<BaseFloat> cu_rand;
 
-    Matrix<BaseFloat> expanded_mat(buffer_size, rbm.InputDim()), expanded_acts_host, acts_host;
-
-    int32 zero_ro, zero_r;
+    Matrix<BaseFloat> expanded_mat(buffer_size, rbm.InputDim()), expanded_acts_host;
 
     Timer tim;
     double time_next=0;
@@ -127,9 +125,6 @@ int main(int argc, char *argv[]) {
         expanded_mat.Resize(mat.NumRows(), mat.NumCols(), kSetZero);
       }
       (SubMatrix<BaseFloat>(expanded_mat, 0, mat.NumRows(), 0, mat.NumCols())).CopyFromMat(mat);
-      // keep track the row indices that are 0
-      zero_ro = mat.NumRows(); // starting index of zero region
-      zero_r = expanded_mat.NumRows() - mat.NumRows(); // total number of rows are zero
 
       // push features to GPU
       feats.CopyFromMat(expanded_mat);
@@ -150,7 +145,8 @@ int main(int argc, char *argv[]) {
       }
 
       acts.CopyToMat(&expanded_acts_host);
-      acts_host.CopyFromMat(SubMatrix<BaseFloat>(expanded_acts_host, zero_ro, zero_r, 0, expanded_acts_host.NumCols()));
+      Matrix<BaseFloat> acts_host(mat.NumRows(), expanded_acts_host.NumCols());
+      acts_host.CopyFromMat(SubMatrix<BaseFloat>(expanded_acts_host, 0, mat.NumRows(), 0, expanded_acts_host.NumCols()));
 
       //check for NaN/inf
       for (int32 r = 0; r < acts_host.NumRows(); r++) {

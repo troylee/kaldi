@@ -44,6 +44,8 @@ l2_penalty=0.0 #L2 regularization penalty
 
 learn_factors=
 
+buffer_size=2500
+
 train_opts=        # options, passed to the training script
 train_tool="nnet-train-xent-hardlab-frmshuff"       # optionally change the training tool
 
@@ -165,8 +167,8 @@ rub_opt_tr=""
 rub_opt_cv=""
 [ ! -z $hidbias ] && rub_opt_tr="--hidbias=$hidbias"
 [ ! -z $hidbias_cv ] && rub_opt_cv="--hidbias=$hidbias_cv"
-feats_tr="$feats_tr rbm-uttbias-forward $rub_opt_tr $rbm_mdl ark:- ark:- |"
-feats_cv="$feats_cv rbm-uttbias-forward $rub_opt_cv $rbm_mdl ark:- ark:- |"
+feats_tr="$feats_tr rbm-uttbias-forward --buffer-size=${buffer_size} $rub_opt_tr $rbm_mdl ark:- ark:- |"
+feats_cv="$feats_cv rbm-uttbias-forward --buffer-size=${buffer_size} $rub_opt_cv $rbm_mdl ark:- ark:- |"
 
 # get input dim
 echo "Getting input dim : "
