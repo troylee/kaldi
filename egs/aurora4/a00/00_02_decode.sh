@@ -8,7 +8,7 @@ cwd=~/tools/kaldi/egs/aurora4/a00
 cd $cwd
 
 numNodes=13 # starts from 0, inclusive
-nodes=( compg0 compg11 compg12 compg19 compg20 compg22 compg24 compg50 compg51 compg52 compg53 compg51 compg0 compg53 )
+nodes=( compg0 compg11 compg12 compg19 compg20 compg22 compg24 compg50 compg51 compg52 compg53 compg0 compg11 compg12 )
 
 set -e           #Exit on non-zero return code from any command
 set -o pipefail  #Exit if any of the commands in the pipeline will 
@@ -233,4 +233,119 @@ decode_multi_dnn1b(){
   log_end "dnn1b [decode]"
 }
 #decode_multi_dnn1b
+
+decode_multi_dnn1c(){
+  log_start "dnn1c [decode]"
+  inv_acwt=17
+  acwt=`perl -e "print (1.0/$inv_acwt);"`;
+  i=1
+  while [ $i -le 14 ]; do
+    for j in `seq 0 $numNodes`; do
+      sid=$((i+j))
+      if [ $sid -le 14 ]; then
+        printf -v x 'test%02g' $sid
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1c exp_multi/dnn1c/graph_bg feat/fbank/${x} exp_multi/dnn1c/decode/decode_bg_${x}" ) &
+      fi
+    done
+    wait;
+    i=$((sid+1))
+  done
+  # write out the average WER results
+  local/average_wer.sh 'exp_multi/dnn1c/decode/decode_bg_test*' | tee exp_multi/dnn1c/decode/decode_bg_test.avgwer
+  log_end "dnn1c [decode]"
+}
+#decode_multi_dnn1c
+
+decode_multi_dnn1d(){
+  log_start "dnn1d [decode]"
+  inv_acwt=17
+  acwt=`perl -e "print (1.0/$inv_acwt);"`;
+  i=1
+  while [ $i -le 14 ]; do
+    for j in `seq 0 $numNodes`; do
+      sid=$((i+j))
+      if [ $sid -le 14 ]; then
+        printf -v x 'test%02g' $sid
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1d exp_multi/dnn1d/graph_bg feat/fbank/${x} exp_multi/dnn1d/decode/decode_bg_${x}" ) &
+      fi
+    done
+    wait;
+    i=$((sid+1))
+  done
+  # write out the average WER results
+  local/average_wer.sh 'exp_multi/dnn1d/decode/decode_bg_test*' | tee exp_multi/dnn1d/decode/decode_bg_test.avgwer
+  log_end "dnn1d [decode]"
+}
+#decode_multi_dnn1d
+
+decode_multi_dnn1e(){
+  log_start "dnn1e [decode]"
+  inv_acwt=17
+  acwt=`perl -e "print (1.0/$inv_acwt);"`;
+  i=1
+  while [ $i -le 14 ]; do
+    for j in `seq 0 $numNodes`; do
+      sid=$((i+j))
+      if [ $sid -le 14 ]; then
+        printf -v x 'test%02g' $sid
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1e exp_multi/dnn1e/graph_bg feat/fbank/${x} exp_multi/dnn1e/decode/decode_bg_${x}" ) &
+      fi
+    done
+    wait;
+    i=$((sid+1))
+  done
+  # write out the average WER results
+  local/average_wer.sh 'exp_multi/dnn1e/decode/decode_bg_test*' | tee exp_multi/dnn1e/decode/decode_bg_test.avgwer
+  log_end "dnn1e [decode]"
+}
+#decode_multi_dnn1e
+
+decode_multi_dnn1d_7h(){
+  log_start "dnn1d_7h [decode]"
+  inv_acwt=17
+  acwt=`perl -e "print (1.0/$inv_acwt);"`;
+  i=1
+  while [ $i -le 14 ]; do
+    for j in `seq 0 $numNodes`; do
+      sid=$((i+j))
+      if [ $sid -le 14 ]; then
+        printf -v x 'test%02g' $sid
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1d_7h exp_multi/dnn1d_7h/graph_bg feat/fbank/${x} exp_multi/dnn1d_7h/decode/decode_bg_${x}" ) &
+      fi
+    done
+    wait;
+    i=$((sid+1))
+  done
+  # write out the average WER results
+  local/average_wer.sh 'exp_multi/dnn1d_7h/decode/decode_bg_test*' | tee exp_multi/dnn1d_7h/decode/decode_bg_test.avgwer
+  log_end "dnn1d_7h [decode]"
+}
+#decode_multi_dnn1d_7h
+
+decode_multi_rbmdnn1a(){
+  log_start "rbmdnn1a [decode]"
+  inv_acwt=17
+  acwt=`perl -e "print (1.0/$inv_acwt);"`;
+  i=1
+  while [ $i -le 14 ]; do
+    for j in `seq 0 $numNodes`; do
+      sid=$((i+j))
+      if [ $sid -le 14 ]; then
+        printf -v x 'test%02g' $sid
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/rbmdnn1a exp_multi/rbmdnn1a/graph_bg feat/fbank/${x} exp_multi/rbmdnn1a/decode/decode_bg_${x}" ) &
+      fi
+    done
+    wait;
+    i=$((sid+1))
+  done
+  # write out the average WER results
+  local/average_wer.sh 'exp_multi/rbmdnn1a/decode/decode_bg_test*' | tee exp_multi/rbmdnn1a/decode/decode_bg_test.avgwer
+  log_end "rbmdnn1a [decode]"
+}
+#decode_multi_rbmdnn1a
 
