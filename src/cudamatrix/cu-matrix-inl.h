@@ -326,7 +326,6 @@ void CuMatrix<Real>::SetZero() {
 }
 
 
-
 /**
  * Print the matrix to stream
  */
@@ -363,6 +362,28 @@ void CuMatrix<Real>::Set(Real value) {
   }
 }
 
+template<typename Real>
+void CuMatrix<Real>::PartSet(Real value, MatrixIndexT ro, MatrixIndexT r, MatrixIndexT co, MatrixIndexT c) {
+  #if HAVE_CUDA==1
+  if (CuDevice::Instantiate().Enabled()) {
+    Timer tim;
+
+    assert(ro >= 0 && ro + r <= NumRows());
+    assert(co >= 0 && co + c <= NumCols());
+
+    dim3 dimBlock(CUBLOCK, CUBLOCK);
+    dim3 dimGrid(n_blocks(NumCols(), CUBLOCK), n_blocks(NumRows(), CUBLOCK));
+
+    cuda_part_set_const(dimGrid, dimBlock, data_, value, Dim(), ro, r, co, c);
+    cuSafeCall(cudaGetLastError());
+
+    CuDevice::Instantiate().AccuProfile(__func__, tim.Elapsed());
+  } else
+  #endif
+  {
+    (SubMatrix<Real>(mat_, ro, r, co, c)).Set(value);
+  }
+}
 template<typename Real>
 void CuMatrix<Real>::Binarize(Real thres) {
   #if HAVE_CUDA==1

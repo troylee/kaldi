@@ -8,13 +8,9 @@ config=            # config, which is also sent to all other scripts
 
 # NETWORK INITIALIZATION
 mlp_init=          # select initialized MLP (override initialization)
-#mlp_proto=         # select network prototype (initialize it)
-#proto_opts=        # non-default options for 'make_nnet_proto.py'
-feature_transform= # provide feature transform (=splice,rescaling,...) (don't build new one)
 #
 hid_layers=4       # nr. of hidden layers (prior to sotfmax or bottleneck)
 hid_dim=2048       # select hidden dimension
-bn_dim=            # set a value to get a bottleneck network
 dbn=               # select DBN to prepend to the MLP initialization
 #
 init_opts=         # options, passed to the initialization script
@@ -32,35 +28,26 @@ num_tgt=           # force to use number of outputs in the MLP (default is autod
 alidir=
 alidir_cv=
 
+# RBM UTT opts
+rbm_mdl=
+hidbias=
+hidbias_cv=
+
 # TRAINING SCHEDULER
-average_grad=false
+max_iters=99
+start_halving_impr=0.5
+halving_factor=0.5
+end_learn_rate=0.0001
+learn_rate=0.015 #learning rate
 bunchsize=128 #size of the Stochastic-GD update block
-l1_penalty=0.0
 l2_penalty=0.0 #L2 regularization penalty
-l2_upperbound=15.0 
 
-momentum_init=0.1
-momentum_inc=0.1
-momentum_low=0.5
-momentum_high=0.9
-num_iters_momentum_adjust=5
-
-high_learn_rate=0.005
-num_iters_high_lrate=30
-
-low_learn_rate=0.001
-num_iters_low_lrate=20
-
-#dropout configs
-drop_input=false
-input_drop_ratio=0.2
-hidden_drop_ratio=0.5
+learn_factors=
 
 train_opts=        # options, passed to the training script
 train_tool="nnet-train-xent-hardlab-frmshuff"       # optionally change the training tool
 
 # OTHER
-debug=false
 seed=777    # seed value used for training data shuffling and initialization
 # End configuration.
 
@@ -85,6 +72,10 @@ dir=$4
 
 if [ -z $labels ] && ([ -z $alidir ] || [ -z $alidir_cv ]); then
   echo "No label specified" && exit 1;
+fi
+
+if [ -z $rbm_mdl ]; then
+  echo "No RBM(uttbias) model specified!" && exit 1;
 fi
 
 silphonelist=`cat $lang/phones/silence.csl` || exit 1;
@@ -169,6 +160,14 @@ feats_tr="$feats_tr splice-feats --left-context=${splice} --right-context=${spli
 feats_cv="$feats_cv splice-feats --left-context=${splice} --right-context=${splice} ark:- ark:- |"
 echo "${splice}" > $dir/splice
 
+# add RBM-utt
+rub_opt_tr=""
+rub_opt_cv=""
+[ ! -z $hidbias ] && rub_opt_tr="--hidbias=$hidbias"
+[ ! -z $hidbias_cv ] && rub_opt_cv="--hidbias=$hidbias_cv"
+feats_tr="$feats_tr rbm-uttbias-forward $rub_opt_tr $rbm_mdl ark:- ark:- |"
+feats_cv="$feats_cv rbm-uttbias-forward $rub_opt_cv $rbm_mdl ark:- ark:- |"
+
 # get input dim
 echo "Getting input dim : "
 num_fea=$(feat-to-dim "$feats_tr" -)
@@ -201,42 +200,28 @@ else
     layer_config="${layer_config}:${hid_dim}"
   done
   layer_config="${layer_config}:${num_tgt}"
-  utils/gen_mlp_dropout_init.py --dim=${layer_config} --gauss --negbias --dropInput=${drop_input} --inputDropRatio=${input_drop_ratio} --hiddenDropRatio=${hidden_drop_ratio} >> $mlp_init
+  utils/gen_mlp_init.py --dim=${layer_config} --gauss --negbias >> $mlp_init
 fi
 
 ###### TRAIN ######
 echo
-echo "# RUNNING THE NN-TRAINING (DROPOUT)"
-# stage 1: first 5 iterations of momentum adjusting
-steps/finetune_dropout.sh --debug $debug ${feature_transform:+ --feature-transform "$feature_transform"} \
-  --num_iters ${num_iters_momentum_adjust} --momentum-init ${momentum_init} --momentum-inc ${momentum_inc} \
-  --learn-rate ${high_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
-  --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} --average-grad ${average_grad} \
-  "$feats_tr" "$feats_cv" "$labels_tr" "$labels_cv" \
-  $mlp_init $dir/nnet/nnet_stage1
+echo "# RUNNING THE NN-TRAINING SCHEDULER"
+steps/nnet_scheduler/train_scheduler.sh \
+  ${feature_transform:+ --feature-transform "$feature_transform"} \
+  ${learn_factors:+ --learn-factors "$learn_factors"} \
+  --learn-rate $learn_rate --max-iters $max_iters \
+  --start-halving-impr $start_halving_impr \
+  --halving-factor $halving_factor \
+  --end_learn_rate $end_learn_rate \
+  --bunchsize $bunchsize \
+  --l2-penalty $l2_penalty \
+  ${train_opts} \
+  ${train_tool:+ --train-tool "$train_tool"} \
+  ${config:+ --config $config} \
+  $mlp_init "$feats_tr" "$feats_cv" "$labels_tr" "$labels_cv" $dir || exit 1
 
-# stage 2: 30 epochs of high learning rate, low_momentum
-steps/finetune_dropout.sh --debug $debug ${feature_transform:+ --feature-transform "$feature_transform"} \
-  --num_iters ${num_iters_high_lrate} --momentum-init ${momentum_low} --momentum-inc 0.0 \
-  --learn-rate ${high_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
-  --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} --average-grad ${average_grad} \
-  "$feats_tr" "$feats_cv" "$labels_tr" "$labels_cv" \
-  $dir/nnet/nnet_stage1 $dir/nnet/nnet_stage2
 
-# stage 3: 20 epochs of low learning rate
-steps/finetune_dropout.sh --debug $debug ${feature_transform:+ --feature-transform "$feature_transform"} \
-  --num_iters ${num_iters_low_lrate} --momentum-init ${momentum_high} --momentum-inc 0.0 \
-  --learn-rate ${low_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
-  --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} --average-grad ${average_grad} \
-  "$feats_tr" "$feats_cv" "$labels_tr" "$labels_cv" \
-  $dir/nnet/nnet_stage2 $dir/nnet/nnet_stage3
-    
-# link to the final
-mlp_final=`readlink $dir/nnet/nnet_stage3`
-[[ ${mlp_final:0:1} != "/" && ${mlp_final:0:1} != "~" ]] && mlp_final=$PWD/$mlp_final
-( cd $dir; ln -s $mlp_final final.nnet; )
-
-echo "$0 successfuly finished.. $dir/final.nnet"
+echo "$0 successfuly finished.. $dir"
 
 sleep 3
 exit 0

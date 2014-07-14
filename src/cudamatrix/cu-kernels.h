@@ -42,6 +42,7 @@ namespace kaldi {
  * CuMatrix
  */
 template<typename Real> inline void cuda_set_const(dim3 Gr, dim3 Bl, Real *mat, Real value, MatrixDim d) { KALDI_ERR << __func__ << " Not implemented!"; }
+template<typename Real> inline void cuda_part_set_const(dim3 Gr, dim3 Bl, Real *mat, Real value, MatrixDim d, int32_cuda ro, int32_cuda r, int32_cuda co, int32_cuda c) { KALDI_ERR << __func__ << " Not implemented!"; }
 template<typename Real> inline void cuda_binarize(dim3 Gr, dim3 Bl, Real *mat, Real thres, MatrixDim d) { KALDI_ERR << __func__ << " Not implemented!"; }
 template<typename Real> inline void cuda_add_const(dim3 Gr, dim3 Bl, Real *mat, Real value, MatrixDim d) { KALDI_ERR << __func__ << " Not implemented!"; }
 template<typename Real> inline void cuda_power(dim3 Gr, dim3 Bl, Real *mat, Real pow, MatrixDim d) { KALDI_ERR << __func__ << " Not implemented!"; }
@@ -104,6 +105,7 @@ template<typename Real> inline void cuda_copy(dim3 Gr, dim3 Bl, Real *y, const R
  * CuMatrix 
  */
 template<> inline void cuda_set_const<float>(dim3 Gr, dim3 Bl, float *mat, float value, MatrixDim d) { cudaF_set_const(Gr,Bl,mat,value,d); }
+template<> inline void cuda_part_set_const<float>(dim3 Gr, dim3 Bl, float *mat, float value, MatrixDim d, int32_cuda ro, int32_cuda r, int32_cuda co, int32_cuda c) { cudaF_part_set_const(Gr,Bl,mat,value,d,ro,r,co,c); }
 template<> inline void cuda_binarize<float>(dim3 Gr, dim3 Bl, float *mat, float thres, MatrixDim d) {cudaF_binarize(Gr,Bl,mat,thres,d); }
 template<> inline void cuda_add_const<float>(dim3 Gr, dim3 Bl, float *mat, float value, MatrixDim d) { cudaF_add_const(Gr,Bl,mat,value,d); }
 template<> inline void cuda_power<float>(dim3 Gr, dim3 Bl, float *mat, float pow, MatrixDim d) { cudaF_power(Gr,Bl,mat,pow,d); }
@@ -165,6 +167,7 @@ template<> inline void cuda_copy<float>(dim3 Gr, dim3 Bl, float *y, const float 
  * CuMatrix 
  */
 template<> inline void cuda_set_const<double>(dim3 Gr, dim3 Bl, double *mat, double value, MatrixDim d) { cudaD_set_const(Gr,Bl,mat,value,d); }
+template<> inline void cuda_part_set_const<double>(dim3 Gr, dim3 Bl, double *mat, double value, MatrixDim d, int32_cuda ro, int32_cuda r, int32_cuda co, int32_cuda c) { cudaD_part_set_const(Gr,Bl,mat,value,d,ro,r,co,c); }
 template<> inline void cuda_binarize<double>(dim3 Gr, dim3 Bl, double *mat, double thres, MatrixDim d) { cudaD_binarize(Gr,Bl,mat,thres,d); }
 template<> inline void cuda_add_const<double>(dim3 Gr, dim3 Bl, double *mat, double value, MatrixDim d) { cudaD_add_const(Gr,Bl,mat,value,d); }
 template<> inline void cuda_power<double>(dim3 Gr, dim3 Bl, double *mat, double pow, MatrixDim d) { cudaD_power(Gr,Bl,mat,pow,d); }

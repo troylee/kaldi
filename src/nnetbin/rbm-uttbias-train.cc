@@ -30,15 +30,17 @@ int main(int argc, char *argv[]) {
   try {
     const char *usage =
         "Perform iteration of RBM training by CD1.\n"
-        "Usage:  rbm-uttbias-train [options] <feature-rspecifier> "
-        "<visbias-wspecifier> <hidbias-wspecifier> <model-in> [<model-out>]\n"
+        "Usage:  rbm-uttbias-train [options] <feature-rspecifier> <model-in> [<model-out>]\n"
         "e.g.: \n"
-        " rbm-uttbias-train scp:train.scp ark:visbias.0.ark ark:visbias.1.ark"
-        "ark:hidbias.0.ark ark:hidbias.1.ark rbm.init rbm.iter1\n";
+        " rbm-uttbias-train --visbias-in='ark:visbias.0.ark' --visbias-out='ark:visbias.1.ark'"
+        " --hidbias-in='ark:hidbias.0.ark' --hidbias-out='ark:hidbias.1.ark' scp:train.scp rbm.init rbm.iter1\n";
 
     ParseOptions po(usage);
     bool binary = false;
     po.Register("binary", &binary, "Write output in binary mode");
+
+    int32 buffer_size = 1000;
+    po.Register("buffer-size", &buffer_size, "The sample size used to pre-allocate memory");
 
     BaseFloat learn_rate = 0.008,
         momentum = 0.0,
@@ -48,24 +50,25 @@ int main(int argc, char *argv[]) {
     po.Register("momentum", &momentum, "Momentum");
     po.Register("l2-penalty", &l2_penalty, "L2 penalty (weight decay)");
 
-    std::string feature_transform,
-      visbias_rspecifier, hidbias_rspecifier;
+    std::string feature_transform = "",
+      visbias_rspecifier = "", visbias_wspecifier = "",
+      hidbias_rspecifier = "", hidbias_wspecifier = "";
     po.Register("feature-transform", &feature_transform, "Feature transform Neural Network");
-    po.Register("init-visbias", &visbias_rspecifier, "Initial visible biases");
-    po.Register("init-hidbias", &hidbias_rspecifier, "Initial hidden biases");
+    po.Register("visbias-in", &visbias_rspecifier, "Input visible biases");
+    po.Register("visbias-out", &visbias_wspecifier, "Output visible biases");
+    po.Register("hidbias-in", &hidbias_rspecifier, "Input hidden biases");
+    po.Register("hidbias-out", &hidbias_wspecifier, "Output hidden biases");
 
     po.Read(argc, argv);
 
-    if (po.NumArgs() != 4 && po.NumArgs() != 5) {
+    if (po.NumArgs() != 2 && po.NumArgs() != 3) {
       po.PrintUsage();
       exit(1);
     }
 
     std::string feature_rspecifier = po.GetArg(1),
-        visbias_wspecifier = po.GetArg(2),
-        hidbias_wspecifier = po.GetArg(3),
-        model_filename = po.GetArg(4),
-        target_model_filename = po.GetOptArg(5);
+        model_filename = po.GetArg(2),
+        target_model_filename = po.GetOptArg(3);
      
     using namespace kaldi;
     typedef kaldi::int32 int32;
@@ -79,7 +82,7 @@ int main(int argc, char *argv[]) {
     nnet.Read(model_filename);
     KALDI_ASSERT(nnet.LayerCount()==1);
     KALDI_ASSERT(nnet.Layer(0)->GetType() == Component::kRbm);
-    Rbm &rbm = dynamic_cast<Rbm&>(*nnet.Layer(0));
+    Rbm &rbm = dynamic_cast<Rbm&>(*(nnet.Layer(0)));
 
     rbm.SetLearnRate(learn_rate);
     rbm.SetMomentum(momentum);
@@ -97,13 +100,13 @@ int main(int argc, char *argv[]) {
       hidbias_reader.Open(hidbias_rspecifier);
     }
 
-    BaseFloatVectorWriter visbias_writer(visbias_wspecifier);
-    BaseFloatVectorWriter hidbias_writer(hidbias_wspecifier);
-
-    MseProgress mse;
-
-    CuMatrix<BaseFloat> feats, feats_transf, pos_vis, pos_hid, neg_vis, neg_hid;
-    CuMatrix<BaseFloat> dummy_mse_mat;
+    BaseFloatVectorWriter visbias_writer, hidbias_writer;
+    if(visbias_wspecifier != ""){
+      visbias_writer.Open(visbias_wspecifier);
+    }
+    if(hidbias_wspecifier != ""){
+      hidbias_writer.Open(hidbias_wspecifier);
+    }
 
     // biases
     Vector<BaseFloat> visbias(rbm.InputDim(), kSetZero),
@@ -119,6 +122,17 @@ int main(int argc, char *argv[]) {
     rbm.GetVisibleBias(&init_visbias);
     rbm.GetHiddenBias(&init_hidbias);
 
+    Mse mse;
+
+    CuMatrix<BaseFloat> feats, feats_transf, pos_vis, pos_hid, neg_vis, neg_hid;
+    CuMatrix<BaseFloat> dummy_mse_mat;
+
+    CuRand<BaseFloat> cu_rand;
+
+    int32 zero_ro, zero_r;
+    int32 dim_vis = rbm.InputDim(), dim_hid = rbm.OutputDim();
+    Matrix<BaseFloat> expanded_mat(buffer_size, dim_vis);
+
     Timer tim;
     double time_next=0;
     KALDI_LOG << "RBM TRAINING STARTED";
@@ -128,40 +142,57 @@ int main(int argc, char *argv[]) {
       std::string key = feature_reader.Key();
       KALDI_VLOG(3) << key;
 
-      // setup the RBM model
-      if(visbias_reader.IsOpen()){
+      /*******************************************
+       * Reset the RBM weights when necessary
+       *******************************************/
+      /* setup the RBM visible bias */
+      if(visbias_reader.IsOpen()){ // using specified per-utt bias
         if(!visbias_reader.HasKey(key)){
           KALDI_WARN << "Utterance " << key <<": Skipped because no visbias found.";
           num_other_error++;
           continue;
         }
-        visbias.CopyFromVec(visbias_reader.Value(key));
-      }else{
-        visbias.CopyFromVec(init_visbias);
-      }
+        rbm.SetVisibleBias(visbias_reader.Value(key));
+      }else if (visbias_writer.IsOpen() || target_model_filename == ""){ // resetting to the global initial value
+        rbm.SetVisibleBias(init_visbias);
+      } // otherwise, the bias is kept global
+
+      /* setup the RBM hidden bias */
       if(hidbias_reader.IsOpen()){
-        if(!hidbias_reader.HasKey(key)){
+        if(!hidbias_reader.HasKey(key)){ // using specified per-utt bias
           KALDI_WARN << "Utterance " << key <<": Skipped because no visbias found.";
           num_other_error++;
           continue;
         }
-        hidbias.CopyFromVec(hidbias_reader.Value(key));
-      }else{
-        hidbias.CopyFromVec(init_hidbias);
-      }
-      rbm.SetVisibleBias(visbias);
-      rbm.SetHiddenBias(hidbias);
+        rbm.SetHiddenBias(hidbias_reader.Value(key));
+      }else if (hidbias_writer.IsOpen() || target_model_filename == ""){ // resetting to the global initial value
+        rbm.SetHiddenBias(init_hidbias);
+      } // otherwise, the bias is kept global
 
-      // only learn biases, use the same weight for all the utts
+      /* setup the RBM weight */
       if(target_model_filename == "") {
         rbm.SetWeight(init_weight);
       }
 
       const Matrix<BaseFloat> &mat = feature_reader.Value();
-      CuRand<BaseFloat> cu_rand;
+      /*
+       * To avoid too frequently allocating and freeing the GPU memory, which may lead to
+       * GPU memory overflow. That is due to the memory is not instantly freed after calling
+       * the free function.
+       * We hence maintain the data size unless a larger one comes.
+       */
+      if(mat.NumRows() > expanded_mat.NumRows()){
+        expanded_mat.Resize(mat.NumRows(), mat.NumCols(), kSetZero);
+      }
+      (SubMatrix<BaseFloat>(expanded_mat, 0, mat.NumRows(), 0, mat.NumCols())).CopyFromMat(mat);
+      // keep track the row indices that are 0
+      zero_ro = mat.NumRows(); // starting index of zero region
+      zero_r = expanded_mat.NumRows() - mat.NumRows(); // total number of rows are zero
+
+      KALDI_VLOG(3) << "Feature size: [" << mat.NumRows() << ", " << mat.NumCols() << "]";
 
       // push features to GPU
-      feats.CopyFromMat(mat);
+      feats.CopyFromMat(expanded_mat);
       // possibly apply transforms
       rbm_transf.Feedforward(feats, &pos_vis);
 
@@ -176,32 +207,52 @@ int main(int argc, char *argv[]) {
         neg_hid.CopyFromMat(pos_hid);
         cu_rand.AddGaussNoise(&neg_hid);
       }
+
       // reconstruct pass
       rbm.Reconstruct(neg_hid, &neg_vis);
       // propagate negative examples
       rbm.Propagate(neg_vis, &neg_hid);
+
+      // reset zero regions
+      if(zero_r > 0){
+        pos_vis.PartSet(0.0, zero_ro, zero_r, 0, dim_vis);
+        pos_hid.PartSet(0.0, zero_ro, zero_r, 0, dim_hid);
+        neg_vis.PartSet(0.0, zero_ro, zero_r, 0, dim_vis);
+        neg_hid.PartSet(0.0, zero_ro, zero_r, 0, dim_hid);
+      }
       // update step
       rbm.RbmUpdate(pos_vis, pos_hid, neg_vis, neg_hid);
       // evaluate mean square error
       mse.Eval(neg_vis, pos_vis, &dummy_mse_mat);
 
       // write out the new estimates
-      rbm.GetVisibleBias(&visbias);
-      rbm.GetHiddenBias(&hidbias);
-      visbias_writer.Write(key, visbias);
-      hidbias_writer.Write(key, hidbias);
-
+      if(visbias_writer.IsOpen()){
+        rbm.GetVisibleBias(&visbias);
+        visbias_writer.Write(key, visbias);
+      }
+      if(hidbias_writer.IsOpen()){
+        rbm.GetHiddenBias(&hidbias);
+        hidbias_writer.Write(key, hidbias);
+      }
       if(target_model_filename != "") {
-        // accumulate global stats for updating the model
+        // accumulate global stats for biases
         global_visbias.AddVec(1.0, visbias);
         global_hidbias.AddVec(1.0, hidbias);
       }
 
-      tot_t += pos_vis.NumRows();
+      tot_t += mat.NumRows();
 
       num_done++;
       if(num_done % 1000 == 0) std::cout << num_done << ", " << std::flush;
-    
+
+#if HAVE_CUDA==1
+     KALDI_VLOG(9) << "feats: [" << feats.NumRows() << ", " << feats.NumCols() << "]";
+     KALDI_VLOG(9) << "pos_vis: [" << pos_vis.NumRows() << ", " << pos_vis.NumCols() << "]";
+     KALDI_VLOG(9) << "pos_hid: [" << pos_hid.NumRows() << ", " << pos_hid.NumCols() << "]";
+     KALDI_VLOG(9) << "neg_vis: [" << neg_vis.NumRows() << ", " << neg_vis.NumCols() << "]";
+     KALDI_VLOG(9) << "neg_hid: [" << neg_hid.NumRows() << ", " << neg_hid.NumCols() << "]";
+     KALDI_VLOG(9) << CuDevice::Instantiate().GetFreeMemory();
+#endif
       Timer t_features;
       feature_reader.Next();
       time_next += t_features.Elapsed();
@@ -211,8 +262,14 @@ int main(int argc, char *argv[]) {
       global_visbias.Scale(1.0/num_done);
       global_hidbias.Scale(1.0/num_done);
 
-      rbm.SetVisibleBias(global_visbias);
-      rbm.SetHiddenBias(global_hidbias);
+      /* We use the average bias as the dummy value in the RBM model file
+       * for utt-biases. */
+      if(visbias_writer.IsOpen()){
+        rbm.SetVisibleBias(global_visbias);
+      }
+      if(hidbias_writer.IsOpen()){
+        rbm.SetHiddenBias(global_hidbias);
+      }
 
       nnet.Write(target_model_filename, binary);
     }
