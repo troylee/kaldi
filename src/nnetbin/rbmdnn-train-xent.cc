@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
     }
 
     Nnet nnet_rbm;
-    nnet_rbm.Read(model_filename);
+    nnet_rbm.Read(rbm_filename);
     KALDI_ASSERT(nnet_rbm.LayerCount()==1);
     KALDI_ASSERT(nnet_rbm.Layer(0)->GetType() == Component::kRbm);
     Rbm &rbm = dynamic_cast<Rbm&>(*nnet_rbm.Layer(0));

@@ -44,10 +44,10 @@ l2_penalty=0.0 #L2 regularization penalty
 
 learn_factors=
 
-buffer_size=2500
+accept_first_update=false
 
 train_opts=        # options, passed to the training script
-train_tool="nnet-train-xent-hardlab-frmshuff"       # optionally change the training tool
+train_tool="rbmdnn-train-xent"       # optionally change the training tool
 
 # OTHER
 seed=777    # seed value used for training data shuffling and initialization
@@ -162,14 +162,6 @@ feats_tr="$feats_tr splice-feats --left-context=${splice} --right-context=${spli
 feats_cv="$feats_cv splice-feats --left-context=${splice} --right-context=${splice} ark:- ark:- |"
 echo "${splice}" > $dir/splice
 
-# add RBM-utt
-rub_opt_tr=""
-rub_opt_cv=""
-[ ! -z $hidbias ] && rub_opt_tr="--hidbias=$hidbias"
-[ ! -z $hidbias_cv ] && rub_opt_cv="--hidbias=$hidbias_cv"
-feats_tr="$feats_tr rbm-uttbias-forward --buffer-size=${buffer_size} $rub_opt_tr $rbm_mdl ark:- ark:- |"
-feats_cv="$feats_cv rbm-uttbias-forward --buffer-size=${buffer_size} $rub_opt_cv $rbm_mdl ark:- ark:- |"
-
 # get input dim
 echo "Getting input dim : "
 num_fea=$(feat-to-dim "$feats_tr" -)
@@ -208,19 +200,22 @@ fi
 ###### TRAIN ######
 echo
 echo "# RUNNING THE NN-TRAINING SCHEDULER"
-steps/nnet_scheduler/train_scheduler.sh \
+steps/rbmdnn/rbmdnn_train_scheduler.sh \
   ${feature_transform:+ --feature-transform "$feature_transform"} \
   ${learn_factors:+ --learn-factors "$learn_factors"} \
+  ${hidbias:+ --hidbias "$hidbias"} \
+  ${hidbias_cv:+ --hidbias-cv "$hidbias_cv"} \
   --learn-rate $learn_rate --max-iters $max_iters \
   --start-halving-impr $start_halving_impr \
   --halving-factor $halving_factor \
   --end_learn_rate $end_learn_rate \
   --bunchsize $bunchsize \
   --l2-penalty $l2_penalty \
+  --accept-first-update $accept_first_update \
   ${train_opts} \
   ${train_tool:+ --train-tool "$train_tool"} \
   ${config:+ --config $config} \
-  $mlp_init "$feats_tr" "$feats_cv" "$labels_tr" "$labels_cv" $dir || exit 1
+  $rbm_mdl $mlp_init "$feats_tr" "$feats_cv" "$labels_tr" "$labels_cv" $dir || exit 1
 
 
 echo "$0 successfuly finished.. $dir"
