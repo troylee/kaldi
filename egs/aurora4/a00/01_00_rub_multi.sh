@@ -92,6 +92,24 @@ train_rub1b(){
 }
 #train_rub1b
 
+decode_rub1b(){
+  log_start "rub1b [decode]"
+  dir=exp_multi/rub1b
+  rubdir=exp_multi/rub1a_pretrain
+  inv_acwt=17
+  acwt=`perl -e "print (1.0/$inv_acwt);"`;
+  for i in `seq -f "%02g" 1 14`; do
+    x=test${i}
+    steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir \
+      --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark \
+      $dir/graph_bg feat/fbank/${x} $dir/decode/decode_bg_${x} || exit 1;
+  done
+  local/average_wer.sh "$dir/decode/decode_bg_test*" | tee $dir/decode/decode_bg_test.avgwer
+  log_end "rub1b [decode]"
+
+}
+#decode_rub1b
+
 ##--------------------
 ## RBM with utterance dependent hidden biases only
 pretrain_rub2a(){
