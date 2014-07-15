@@ -31,7 +31,7 @@ For all the DNN systems, we use 72D (24*3) FBank with per-utt MVN features.
 |:-----------|:--------------:|:------------|
 | dnn1b | 13.75 | tri1a alignment |
 | dnn1c | 13.66 | dnn1b alignment |
-| *dnn1d* | *13.35* | dnn1c alignment |
+| **dnn1d** | **13.35** | dnn1c alignment |
 | dnn1e | 13.51 | dnn1d alignment |
 
 ##### 7 Hidden Layers
@@ -39,6 +39,6 @@ For all the DNN systems, we use 72D (24*3) FBank with per-utt MVN features.
 | Experiment | Average WER(%) | Description |
 |:-----------|:--------------:|:------------|
 | dnn1d_7h | 13.41 | |
-| *rbmdnn1a* | *13.09* | 1 RBM layer + 6 fine-tuned hidden layers |
+| **rbmdnn1a** | **13.09** | 1 RBM layer + 6 fine-tuned hidden layers |
 
 
