@@ -1,6 +1,6 @@
-// nnetbin/nnet-train-xent-hardlab-perutt.cc
+// nnetbin/rbmdnn-train-xent.cc
 
-// Copyright 2011  Karel Vesely
+// Copyright 2014 Bo Li
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
         "Perform iteration of Neural Network training by stochastic gradient descent.\n"
         "Usage:  nnet-train-xent-hardlab-frmshuff [options] <feature-rspecifier> <alignments-rspecifier> <rbm-in> <model-in> [<model-out>]\n"
         "e.g.: \n"
-        " nnet-train-xent-hardlab-perutt scp:train.scp ark:train.ali nnet.init nnet.iter1\n";
+        " nnet-train-xent-hardlab-perutt scp:train.scp ark:train.ali rbm nnet.init nnet.iter1\n";
 
     ParseOptions po(usage);
     bool binary = false, 
