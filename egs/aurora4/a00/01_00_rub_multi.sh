@@ -110,6 +110,30 @@ decode_rub1b(){
 }
 #decode_rub1b
 
+train_rub1c(){
+  #RBM pretrain
+  log_start "rub1c [train]"
+  dir=exp_multi/rub1c
+  mkdir -p $dir/log
+
+  ali=exp_multi/dnn1c_ali/train_multi
+  ali_dev=exp_multi/dnn1c_ali/dev_multi
+  # prepare the RBM(uttbias) model
+  rubdir=exp_multi/rub1a_pretrain
+  rbm_mdl=$rubdir/final.rbm
+  hidbias=ark:$rubdir/final_hidbias.ark
+  hidbias_dev=ark:$rubdir/dev_multi/final_hidbias.ark
+  # prepare the init DNN
+  sub-nnet --binary=true exp_multi/rbmdnn1a/final.nnet $dir/nnet.init `seq 2 1 15`
+  steps/rbmdnn/train_rbmdnn.sh --norm-vars true --mlp-init $dir/nnet.init --learn-rate 0.015 \
+    --rbm-mdl $rbm_mdl --hidbias $hidbias --hidbias-cv $hidbias_dev \
+    --alidir $ali --alidir-cv $ali_dev --accept-first-update true \
+    feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  log_end "rub1c [train]"
+}
+#train_rub1c
+
 ##--------------------
 ## RBM with utterance dependent hidden biases only
 pretrain_rub2a(){
@@ -172,6 +196,31 @@ train_rub2b(){
 }
 #train_rub2b
 
+train_rub2c(){
+  #RBM pretrain
+  log_start "rub2c [train]"
+  dir=exp_multi/rub2c
+  mkdir -p $dir/log
+
+  ali=exp_multi/dnn1c_ali/train_multi
+  ali_dev=exp_multi/dnn1c_ali/dev_multi
+  # prepare the RBM(uttbias) model
+  rubdir=exp_multi/rub2a_pretrain
+  rbm_mdl=$rubdir/final.rbm
+  hidbias=ark:$rubdir/final_hidbias.ark
+  hidbias_dev=ark:$rubdir/dev_multi/final_hidbias.ark
+  # prepare the init DNN
+  sub-nnet --binary=true exp_multi/rbmdnn1a/final.nnet $dir/nnet.init `seq 2 1 15`
+  steps/rbmdnn/train_rbmdnn.sh --norm-vars true --mlp-init $dir/nnet.init --learn-rate 0.015 \
+    --rbm-mdl $rbm_mdl --hidbias $hidbias --hidbias-cv $hidbias_dev \
+    --alidir $ali --alidir-cv $ali_dev --accept-first-update true \
+    feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  log_end "rub2c [train]"
+}
+#train_rub2c
+
+
 ##--------------------
 ## RBM with utterance dependent visible biases only
 pretrain_rub3a(){
@@ -232,5 +281,25 @@ train_rub3b(){
 }
 #train_rub3b
 
+train_rub3c(){
+  #RBM pretrain
+  log_start "rub3c [train]"
+  dir=exp_multi/rub3c
+  mkdir -p $dir/log
 
+  ali=exp_multi/dnn1c_ali/train_multi
+  ali_dev=exp_multi/dnn1c_ali/dev_multi
+  # prepare the RBM(uttbias) model
+  rubdir=exp_multi/rub3a_pretrain
+  rbm_mdl=$rubdir/final.rbm
+  # prepare the init DNN
+  sub-nnet --binary=true exp_multi/rbmdnn1a/final.nnet $dir/nnet.init `seq 2 1 15`
+  steps/rbmdnn/train_rbmdnn.sh --norm-vars true --mlp-init $dir/nnet.init --learn-rate 0.015 \
+    --rbm-mdl $rbm_mdl \
+    --alidir $ali --alidir-cv $ali_dev --accept-first-update true \
+    feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  log_end "rub3c [train]"
+}
+#train_rub3c
 
