@@ -22,7 +22,63 @@
 #include "hmm/transition-model.h"
 #include "hmm/hmm-utils.h"
 
+namespace kaldi {
 
+void WeightSilencePost(const TransitionModel &trans_model,
+                       const ConstIntegerSet<int32> &silence_set,
+                       BaseFloat silence_scale,
+                       Posterior *post) {
+  for (size_t i = 0; i < post->size(); i++) {
+    std::vector<std::pair<int32, BaseFloat> > this_post;
+    this_post.reserve((*post)[i].size());
+    for (size_t j = 0; j < (*post)[i].size(); j++) {
+      int32 tid = (*post)[i][j].first,
+          phone = trans_model.TransitionIdToPhone(tid);
+      BaseFloat weight = (*post)[i][j].second;
+      if (silence_set.count(phone) != 0) {  // is a silence.
+        if (silence_scale != 0.0)
+          this_post.push_back(std::make_pair(tid, weight*silence_scale));
+      } else {
+        this_post.push_back(std::make_pair(tid, weight));
+      }
+    }
+    (*post)[i].swap(this_post);
+  }
+}
+
+
+void WeightSilencePostDistributed(const TransitionModel &trans_model,
+                                  const ConstIntegerSet<int32> &silence_set,
+                                  BaseFloat silence_scale,
+                                  Posterior *post) {
+  for (size_t i = 0; i < post->size(); i++) {
+    std::vector<std::pair<int32, BaseFloat> > this_post;
+    this_post.reserve((*post)[i].size());
+    BaseFloat sil_weight = 0.0, nonsil_weight = 0.0;
+    for (size_t j = 0; j < (*post)[i].size(); j++) {
+      int32 tid = (*post)[i][j].first,
+          phone = trans_model.TransitionIdToPhone(tid);
+      BaseFloat weight = (*post)[i][j].second;
+      if (silence_set.count(phone) != 0) sil_weight += weight;
+      else nonsil_weight += weight;
+    }
+    KALDI_ASSERT(sil_weight >= 0.0 && nonsil_weight >= 0.0); // This "distributed"
+    // weighting approach doesn't make sense if we have negative weights.
+    if (sil_weight + nonsil_weight == 0.0) continue;
+    BaseFloat frame_scale = (sil_weight * silence_scale + nonsil_weight) /
+                            (sil_weight + nonsil_weight);
+    if (frame_scale != 0.0) {
+      for (size_t j = 0; j < (*post)[i].size(); j++) {
+        int32 tid = (*post)[i][j].first;
+        BaseFloat weight = (*post)[i][j].second;
+        this_post.push_back(std::make_pair(tid, weight * frame_scale));
+      }
+    }
+    (*post)[i].swap(this_post);
+  }
+}
+
+} // end namespace
 
 int main(int argc, char *argv[]) {
   using namespace kaldi;
@@ -37,6 +93,12 @@ int main(int argc, char *argv[]) {
 
     ParseOptions po(usage);
 
+    bool distribute = false;
+
+    po.Register("distribute", &distribute, "If true, rather than weighting the "
+                "individual posteriors, apply the weighting to the whole frame: "
+                "i.e. on time t, scale all posterior entries by "
+                "p(sil)*silence-weight + p(non-sil)*1.0");
 
     po.Read(argc, argv);
 
@@ -44,7 +106,6 @@ int main(int argc, char *argv[]) {
       po.PrintUsage();
       exit(1);
     }
-
 
     std::string silence_weight_str = po.GetArg(1),
         silence_phones_str = po.GetArg(2),
@@ -73,25 +134,15 @@ int main(int argc, char *argv[]) {
     for (; !posterior_reader.Done(); posterior_reader.Next()) {
       num_posteriors++;
       // Posterior is vector<vector<pair<int32, BaseFloat> > >
-      const Posterior &posterior = posterior_reader.Value();
-      // Posterior is vector<vector<pair<int32, BaseFloat> > >
-      Posterior new_post(posterior.size());
+      Posterior post = posterior_reader.Value();
 
-      for (size_t i = 0; i < posterior.size(); i++) {
-        new_post[i].reserve(posterior[i].size());  // more efficient.
-        for (size_t j = 0; j < posterior[i].size(); j++) {
-          int32 tid = posterior[i][j].first,
-              phone = trans_model.TransitionIdToPhone(tid);
-          BaseFloat weight = posterior[i][j].second;
-          if (silence_set.count(phone) != 0) {  // is a silence.
-            if (silence_weight != 0.0)
-              new_post[i].push_back(std::make_pair(tid, weight*silence_weight));
-          } else {
-            new_post[i].push_back(std::make_pair(tid, weight));
-          }
-        }
+      if( distribute ) {
+        WeightSilencePostDistributed(trans_model, silence_set, silence_weight, &post);
+      } else {
+        WeightSilencePost(trans_model, silence_set, silence_weight, &post);
       }
-      posterior_writer.Write(posterior_reader.Key(), new_post);
+
+      posterior_writer.Write(posterior_reader.Key(), post);
     }
     KALDI_LOG << "Done " << num_posteriors << " posteriors.";
     return (num_posteriors != 0 ? 0 : 1);

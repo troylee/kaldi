@@ -65,6 +65,18 @@ decode_multi_tri1a(){
 }
 #decode_multi_tri1a
 
+decode_multi_tri1a_fmllr(){
+  log_start "tri1a [fmllr decode]"
+  for i in `seq -f "%02g" 1 14`; do
+    x=test${i}
+    steps/decode_deltas_fmllr.sh --nj 8 --srcdir exp_multi/tri1a --si-dir exp_multi/tri1a/decode/decode_bg_${x} exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode_fmllr/decode_bg_${x} || exit 1;
+  done
+  # write out the average WER results
+  local/average_wer.sh 'exp_multi/tri1a/decode_fmllr/decode_bg_test*' | tee exp_multi/tri1a/decode_fmllr/decode_bg_test.avgwer
+  log_end "tri1a [fmllr decode]"
+}
+#decode_multi_tri1a_fmllr
+
 align_multi_tri1a(){
   # align multi-style data with multi-trained model, needs a larger beam
   log_start "tri1a [align-train-multi]"
