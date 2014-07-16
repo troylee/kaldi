@@ -59,6 +59,9 @@ hidden_drop_ratio=0.5
 train_opts=        # options, passed to the training script
 train_tool="nnet-train-xent-hardlab-frmshuff"       # optionally change the training tool
 
+# do per-iteration shuffle
+iter_shuffle=false
+
 # OTHER
 debug=false
 seed=777    # seed value used for training data shuffling and initialization
@@ -174,6 +177,10 @@ echo "Getting input dim : "
 num_fea=$(feat-to-dim "$feats_tr" -)
 echo "Input dim is : $num_fea"
 
+# per-iter shuffle opt
+shuffle_opt=""
+$iter_shuffle && shuffle_opt="--shuffle true --ori-tr-scp $data/feats.scp --tgt-tr-scp $dir/train.scp"
+
 ###### INITIALIZE THE NNET ######
 echo 
 echo "# NN-INITIALIZATION"
@@ -208,7 +215,7 @@ fi
 echo
 echo "# RUNNING THE NN-TRAINING (DROPOUT)"
 # stage 1: first 5 iterations of momentum adjusting
-steps/finetune_dropout.sh --debug $debug ${feature_transform:+ --feature-transform "$feature_transform"} \
+steps/finetune_dropout.sh $shuffle_opt --debug $debug ${feature_transform:+ --feature-transform "$feature_transform"} \
   --num_iters ${num_iters_momentum_adjust} --momentum-init ${momentum_init} --momentum-inc ${momentum_inc} \
   --learn-rate ${high_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
   --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} --average-grad ${average_grad} \
@@ -216,7 +223,7 @@ steps/finetune_dropout.sh --debug $debug ${feature_transform:+ --feature-transfo
   $mlp_init $dir/nnet/nnet_stage1
 
 # stage 2: 30 epochs of high learning rate, low_momentum
-steps/finetune_dropout.sh --debug $debug ${feature_transform:+ --feature-transform "$feature_transform"} \
+steps/finetune_dropout.sh $shuffle_opt --debug $debug ${feature_transform:+ --feature-transform "$feature_transform"} \
   --num_iters ${num_iters_high_lrate} --momentum-init ${momentum_low} --momentum-inc 0.0 \
   --learn-rate ${low_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
   --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} --average-grad ${average_grad} \
@@ -224,7 +231,7 @@ steps/finetune_dropout.sh --debug $debug ${feature_transform:+ --feature-transfo
   $dir/nnet/nnet_stage1 $dir/nnet/nnet_stage2
 
 # stage 3: 20 epochs of low learning rate
-steps/finetune_dropout.sh --debug $debug ${feature_transform:+ --feature-transform "$feature_transform"} \
+steps/finetune_dropout.sh $shuffle_opt --debug $debug ${feature_transform:+ --feature-transform "$feature_transform"} \
   --num_iters ${num_iters_low_lrate} --momentum-init ${momentum_high} --momentum-inc 0.0 \
   --learn-rate ${low_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
   --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} --average-grad ${average_grad} \

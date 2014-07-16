@@ -27,6 +27,10 @@ verbose=1
 debug=false
 # tool
 train_tool="nnet-train-xent-hardlab-frmshuff" 
+# re-shuffle for each iteration
+shuffle=false
+ori_tr_scp=
+tgt_tr_scp=
 # End configuration.
 
 echo "$0 $@"  # Print the command line for logging
@@ -58,6 +62,8 @@ logdir=$dir/../log
 # Skip training
 [ -e $nnet_out ] && echo "'$nnet_out' exists, skipping training" && exit 0
 
+$shuffle && [[ -z $ori_tr_scp || -z $tgt_tr_scp ]] && echo "unspecified ori_tr_scp or tgt_tr_scp for shuffling!" && exit 1;
+
 ##############################
 #start training
 
@@ -70,6 +76,8 @@ for iter in $(seq 1 $num_iters); do
   if [ -e $logdir/.done_${base}.iter${iter} ] && [ -e ${nnet_out}.iter${iter} ]; then
     printf "skipping ... \n"
   else
+    $shuffle && ( cat $ori_tr_scp | utils/shuffle_list.pl --srand `date +%N` > $tgt_tr_scp ) && echo "Re-shuffling the training data..."
+
     # training
     log=$logdir/${base}.iter${iter}.tr.log; hostname>$log
     $train_tool \
