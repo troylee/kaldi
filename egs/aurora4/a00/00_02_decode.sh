@@ -138,7 +138,29 @@ decode_multi_tri1a_fmllr(){
   local/average_wer.sh 'exp_multi/tri1a/decode_fmllr/decode_bg_test*' | tee exp_multi/tri1a/decode_fmllr/decode_bg_test.avgwer
   log_end "tri1a [fmllr decode]"
 }
-decode_multi_tri1a_fmllr
+#decode_multi_tri1a_fmllr
+
+decode_multi_tri1a_fmllr_utt(){
+  # decode exp_multi/tri1a
+  log_start "tri1a [fmllr-utt decode]"
+  i=1
+  while [ $i -le 14 ]; do
+    for j in `seq 0 $numNodes`; do
+      sid=$((i+j))
+      if [ $sid -le 14 ]; then
+        printf -v x 'test%02g' $sid
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas_fmllr.sh --per-speaker false --nj 8 --srcdir exp_multi/tri1a --si-dir exp_multi/tri1a/decode/decode_bg_${x} exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode_fmllr_utt/decode_bg_${x}" ) &
+      fi
+    done
+    wait;
+    i=$((sid+1))
+  done
+  # write out the average WER results
+  local/average_wer.sh 'exp_multi/tri1a/decode_fmllr_utt/decode_bg_test*' | tee exp_multi/tri1a/decode_fmllr_utt/decode_bg_test.avgwer
+  log_end "tri1a [fmllr-utt decode]"
+}
+#decode_multi_tri1a_fmllr_utt
 
 decode_multi_tri1b(){
   log_start "tri1b [decode]"

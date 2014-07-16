@@ -55,6 +55,7 @@ num_threads=1 # if >1, will use gmm-latgen-faster-parallel
 parallel_opts=  # If you supply num-threads, you should supply this too.
 scoring_opts=
 
+per_speaker=true # otherwise per-utterance
 # End configuration section
 
 echo "$0 $@"  # Print the command line for logging
@@ -136,6 +137,10 @@ for f in $adapt_model $final_model; do
 done
 ##
 
+utt2spk_opt=""
+spk2utt_opt=""
+$per_speaker && ( utt2spk_opt="--utt2spk=ark:$sdata/JOB/utt2spk"; spk2utt_opt="--spk2utt=ark:$sdata/JOB/spk2utt"; )
+
 ## Set up the unadapted features "$sifeats"
 sifeats="ark,s,cs:add-deltas --delta-order=2 --delta-window=3 scp:$sdata/JOB/feats.scp ark:- |"
 # add cmvn if exists
@@ -149,7 +154,7 @@ if [ ! -z "$transform_dir" ]; then # add transforms to features...
   [ ! -f $transform_dir/trans.1 ] && echo "Expected $transform_dir/trans.1 to exist."
   [ "`cat $transform_dir/num_jobs`" -ne $nj ] && \
      echo "Mismatch in number of jobs with $transform_dir";
-  sifeats="$sifeats transform-feats --utt2spk=ark:$sdata/JOB/utt2spk ark:$transform_dir/trans.JOB ark:- ark:- |"
+  sifeats="$sifeats transform-feats $utt2spk_opt ark:$transform_dir/trans.JOB ark:- ark:- |"
 fi
 ##
 
@@ -162,12 +167,12 @@ if [ $stage -le 1 ]; then
     weight-silence-post --distribute=$distribute $silence_weight $silphonelist $alignment_model ark:- ark:- \| \
     gmm-post-to-gpost $alignment_model "$sifeats" ark:- ark:- \| \
     gmm-est-fmllr-gpost --fmllr-update-type=$fmllr_update_type \
-    --spk2utt=ark:$sdata/JOB/spk2utt $adapt_model "$sifeats" ark,s,cs:- \
+    $spk2utt_opt $adapt_model "$sifeats" ark,s,cs:- \
     ark:$dir/trans1.JOB || exit 1;
 fi
 ##
 
-pass1feats="$sifeats transform-feats --utt2spk=ark:$sdata/JOB/utt2spk ark:$dir/trans1.JOB ark:- ark:- |"
+pass1feats="$sifeats transform-feats $utt2spk_opt ark:$dir/trans1.JOB ark:- ark:- |"
 
 ## Do the first adapted lattice generation pass. 
 if [ $stage -le 2 ]; then
@@ -188,7 +193,7 @@ if [ $stage -le 3 ]; then
     lattice-to-post --acoustic-scale=$acwt "ark:gunzip -c $dir/lat1.JOB.gz|" ark:- \| \
     weight-silence-post --distribute=$distribute $silence_weight $silphonelist $adapt_model ark:- ark:- \| \
     gmm-est-fmllr --fmllr-update-type=$fmllr_update_type \
-    --spk2utt=ark:$sdata/JOB/spk2utt $adapt_model "$pass1feats" \
+    $spk2utt_opt $adapt_model "$pass1feats" \
     ark,s,cs:- ark:$dir/trans1b.JOB '&&' \
     compose-transforms --b-is-affine=true ark:$dir/trans1b.JOB ark:$dir/trans1.JOB \
     ark:$dir/trans2.JOB  || exit 1;
@@ -198,7 +203,7 @@ if [ $stage -le 3 ]; then
 fi
 ##
 
-pass2feats="$sifeats transform-feats --utt2spk=ark:$sdata/JOB/utt2spk ark:$dir/trans2.JOB ark:- ark:- |"
+pass2feats="$sifeats transform-feats $utt2spk_opt ark:$dir/trans2.JOB ark:- ark:- |"
 
 # Generate a 3rd set of lattices, with the "adaptation model"; we'll use these
 # to adapt a 3rd time, and we'll rescore them.  Since we should be close to the final
@@ -224,7 +229,7 @@ if [ $stage -le 5 ]; then
     lattice-to-post --acoustic-scale=$acwt "ark:gunzip -c $dir/lat2.JOB.gz|" ark:- \| \
     weight-silence-post --distribute=$distribute $silence_weight $silphonelist $adapt_model ark:- ark:- \| \
     gmm-est-fmllr --fmllr-update-type=$fmllr_update_type \
-    --spk2utt=ark:$sdata/JOB/spk2utt $adapt_model "$pass2feats" \
+    $spk2utt_opt $adapt_model "$pass2feats" \
     ark,s,cs:- ark:$dir/trans2b.JOB '&&' \
     compose-transforms --b-is-affine=true ark:$dir/trans2b.JOB ark:$dir/trans2.JOB \
     ark:$dir/trans.JOB  || exit 1;
@@ -234,7 +239,7 @@ if [ $stage -le 5 ]; then
 fi
 ##
 
-feats="$sifeats transform-feats --utt2spk=ark:$sdata/JOB/utt2spk ark:$dir/trans.JOB ark:- ark:- |"
+feats="$sifeats transform-feats $utt2spk_opt ark:$dir/trans.JOB ark:- ark:- |"
 
 if [ $stage -le 6 ]; then
   echo "$0: doing a final pass of acoustic rescoring."
