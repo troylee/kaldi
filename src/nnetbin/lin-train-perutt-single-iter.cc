@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
 
     int32 num_done = 0, num_no_alignment = 0, num_other_error = 0;
     /* initialize variables */
-    BaseFloat acc;
+    BaseFloat acc_cv, acc_tr, tot_acc_cv=0.0, tot_acc_tr=0.0;
 
     for (; !feature_reader.Done();) {
       std::string key = feature_reader.Key();
@@ -141,7 +141,7 @@ int main(int argc, char *argv[]) {
         continue;
       }
 
-        /* forward feats through input transform if has */
+      /* forward feats through input transform if has */
       feats.CopyFromMat(mat);  // push features to GPU
       nnet_transf.Feedforward(feats, &feats_transf);
 
@@ -158,6 +158,8 @@ int main(int argc, char *argv[]) {
       nnet.Propagate(feats_transf, &nnet_out);
       xent.Reset();
       xent.EvalVec(nnet_out, alignment, &glob_err);
+      acc_cv=xent.GetFrameAccuracy();
+      tot_acc_cv += acc_cv;
 
       // update the model
       nnet.Backpropagate(glob_err, NULL);
@@ -173,9 +175,10 @@ int main(int argc, char *argv[]) {
       nnet.Propagate(feats_transf, &nnet_out);
       xent.Reset();
       xent.EvalVec(nnet_out, alignment, &glob_err);
-      acc = xent.GetFrameAccuracy();
+      acc_tr = xent.GetFrameAccuracy();
+      tot_acc_tr += acc_tr;
 
-      KALDI_LOG<< "*** Utterance: " << key << ", [" << mat.NumRows() << " frames][CV " << acc << "]";
+      KALDI_LOG<< "*** Utterance: " << key << ", [" << mat.NumRows() << " frames: acc(%) " << acc_cv << " -> " << acc_tr << "]";
 
       ++num_done;
       if (num_done % 1000 == 0) {
@@ -190,6 +193,7 @@ int main(int argc, char *argv[]) {
     KALDI_LOG<< "Done " << num_done << " files, " << num_no_alignment
     << " with no alignments, " << num_other_error
     << " with other errors.";
+    KALDI_LOG<< "Average frame accuracy(%) change: " << tot_acc_cv/num_done << " -> " << tot_acc_tr/num_done << "."; 
     KALDI_LOG<< "Training finished in " << lin_timer.Elapsed() << "s.";
     KALDI_LOG<< "============================================================";
 
