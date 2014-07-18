@@ -30,6 +30,9 @@ for x in train_clean train_multi dev_clean dev_multi dev{01..14} test{01..14}; d
   utils/filter_scp.pl data/$x/spk2utt $srcdir/spk2gender > data/$x/spk2gender || exit 1;
 done
 
+# copy the dev_multi utt2nos mapping
+cp $srcdir/dev_multi.utt2nos data/dev_multi/utt2nos
+utils/utt2spk_to_spk2utt.pl data/dev_multi/utt2nos > data/dev_multi/nos2spk
 
 # Next, for each type of language model, create the corresponding FST
 # and the corresponding lang_test_* directory.
