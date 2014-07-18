@@ -58,10 +58,10 @@ decode_clean_tri1a(){
   # some system works well will {01..14}, but some will remove the starting 0s.
   for i in `seq -f "%02g" 1 14`; do
     x=test${i}
-    steps/decode_deltas.sh --nj 4 --srcdir exp_clean/tri1a exp_clean/tri1a/graph_bg feat/mfcc/${x} exp_clean/tri1a/decode/decode_bg_${x} || exit 1;
+    steps/decode_deltas.sh --nj 4 --srcdir exp_clean/tri1a exp_clean/tri1a/graph_bg feat/mfcc/${x} exp_clean/tri1a/decode/${x} || exit 1;
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_clean/tri1a/decode/decode_bg_test*' | tee exp_clean/tri1a/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_clean/tri1a/decode/test*' | tee exp_clean/tri1a/decode/test.avgwer
   log_end "tri1a [decode]"
 }
 #decode_clean_tri1a

@@ -102,9 +102,9 @@ decode_rub1b(){
     x=test${i}
     steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir \
       --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark \
-      $dir/graph_bg feat/fbank/${x} $dir/decode/decode_bg_${x} || exit 1;
+      $dir/graph_bg feat/fbank/${x} $dir/decode/${x} || exit 1;
   done
-  local/average_wer.sh "$dir/decode/decode_bg_test*" | tee $dir/decode/decode_bg_test.avgwer
+  local/average_wer.sh "$dir/decode/test*" | tee $dir/decode/test.avgwer
   log_end "rub1b [decode]"
 
 }

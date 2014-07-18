@@ -57,10 +57,10 @@ decode_multi_tri1a(){
   log_start "tri1a [decode]"
   for i in `seq -f "%02g" 1 14`; do
     x=test${i}
-    steps/decode_deltas.sh --nj 4 --srcdir exp_multi/tri1a exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode/decode_bg_${x} || exit 1;
+    steps/decode_deltas.sh --nj 4 --srcdir exp_multi/tri1a exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode/${x} || exit 1;
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_multi/tri1a/decode/decode_bg_test*' | tee exp_multi/tri1a/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/tri1a/decode/test*' | tee exp_multi/tri1a/decode/test.avgwer
   log_end "tri1a [decode]"
 }
 #decode_multi_tri1a
@@ -69,10 +69,10 @@ decode_multi_tri1a_fmllr(){
   log_start "tri1a [fmllr decode]"
   for i in `seq -f "%02g" 1 14`; do
     x=test${i}
-    steps/decode_deltas_fmllr.sh --nj 8 --srcdir exp_multi/tri1a --si-dir exp_multi/tri1a/decode/decode_bg_${x} exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode_fmllr/decode_bg_${x} || exit 1;
+    steps/decode_deltas_fmllr.sh --nj 8 --srcdir exp_multi/tri1a --si-dir exp_multi/tri1a/decode/${x} exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode_fmllr/${x} || exit 1;
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_multi/tri1a/decode_fmllr/decode_bg_test*' | tee exp_multi/tri1a/decode_fmllr/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/tri1a/decode_fmllr/test*' | tee exp_multi/tri1a/decode_fmllr/test.avgwer
   log_end "tri1a [fmllr decode]"
 }
 #decode_multi_tri1a_fmllr
@@ -163,10 +163,10 @@ decode_dnn2b(){
     steps/decode_nnet.sh --stage 1 --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn2b \
       --model exp_multi/dnn2a_pretrain/tri1a/pdf_align/final.mdl \
       --class-frame-counts exp_multi/dnn2a_pretrain/tri1a/pdf_align/train.counts \
-      exp_multi/dnn2a_pretrain/tri1a/graph_bcb05cnp feat/fbank/${x} exp_multi/dnn2b/decode/decode_bg_${x} || exit 1;
+      exp_multi/dnn2a_pretrain/tri1a/graph_bcb05cnp feat/fbank/${x} exp_multi/dnn2b/decode/${x} || exit 1;
     exit 0;
   done
-  local/average_wer.sh 'exp_multi/dnn2b/decode/decode_bg_test*' | tee exp_multi/dnn2b/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/dnn2b/decode/test*' | tee exp_multi/dnn2b/decode/test.avgwer
   log_end "dnn2b [decode]"
 
 }
