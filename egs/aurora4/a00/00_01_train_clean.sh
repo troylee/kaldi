@@ -48,7 +48,7 @@ train_clean_tri1a(){
   log_start "tri1a [train]"  
   steps/train_deltas.sh --boost-silence 1.25 --norm_vars true \
       4200 55000 feat/mfcc/train_clean data/lang exp_clean/mono_ali exp_clean/tri1a || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp exp_clean/tri1a exp_clean/tri1a/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp exp_clean/tri1a exp_clean/tri1a/graph || exit 1;
   log_end "tri1a [train]"
 }
 #train_clean_tri1a
@@ -58,10 +58,10 @@ decode_clean_tri1a(){
   # some system works well will {01..14}, but some will remove the starting 0s.
   for i in `seq -f "%02g" 1 14`; do
     x=test${i}
-    steps/decode_deltas.sh --nj 4 --srcdir exp_clean/tri1a exp_clean/tri1a/graph_bg feat/mfcc/${x} exp_clean/tri1a/decode/decode_bg_${x} || exit 1;
+    steps/decode_deltas.sh --nj 4 --srcdir exp_clean/tri1a exp_clean/tri1a/graph feat/mfcc/${x} exp_clean/tri1a/decode/${x} || exit 1;
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_clean/tri1a/decode/decode_bg_test*' | tee exp_clean/tri1a/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_clean/tri1a/decode/test*' | tee exp_clean/tri1a/decode/test.avgwer
   log_end "tri1a [decode]"
 }
 #decode_clean_tri1a
@@ -77,7 +77,7 @@ align_clean_tri1a
 train_clean_spr_tri1b(){
   log_start "tri1b [train]"
   steps/singlepass_retrain.sh feat/mfcc/train_clean exp_clean/tri1a_ali/train_clean exp_clean/tri1b || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp exp_clean/tri1b exp_clean/tri1b/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp exp_clean/tri1b exp_clean/tri1b/graph || exit 1;
   log_end "tri1b [train]"
 }
 train_clean_spr_tri1b

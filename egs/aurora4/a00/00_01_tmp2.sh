@@ -27,23 +27,24 @@ log_end(){
 }
 
 # experiment with dropout fine-tuning
-train_dnn2e(){
-  log_start "dnn2e [train]"
-  dir=exp_multi/dnn2e
-  ali=exp_multi/tri1a_ali/train_multi
-  ali_dev=exp_multi/tri1a_ali/dev_multi
-  ori_mlp=exp_multi/dnn2c/nnet.init
+train_dnn1d_dptmp(){
+  log_start "dnn1d_dptmp [train]"
+  dir=exp_multi/dnn1d_dptmp
+  ali=exp_multi/dnn1c_ali/train_multi
+  ali_dev=exp_multi/dnn1c_ali/dev_multi
+  ori_mlp=exp_multi/dnn1b/nnet.init
   mkdir -p $dir/log
   nnet-add-dropout --add-to-input=false --binary=false \
-    --hidden-drop-ratio=0.5 $ori_mlp $dir/nnet.init 1 3 5 7 9 11 || exit 1;
+    --hidden-drop-ratio=0.3 $ori_mlp $dir/nnet.init 1 3 5 7 9 11 || exit 1;
   steps/train_nnet_dropout.sh --norm-vars true --splice 5 --mlp-init $dir/nnet.init \
     --alidir $ali --alidir-cv $ali_dev --debug true \
-    --bunchsize 256 --l2-upperbound 15.0 \
+    --bunchsize 256 --l2-upperbound 1.0 --average-grad true \
+    --high-learn-rate 0.005 --low-learn-rate 0.001 \
     --momentum-init 0.1 --momentum-inc 0.05 --num-iters-momentum-adjust 8 \
-    --momentum-low 0.5 --momentum-high 0.9 \
+    --momentum-low 0.9 --momentum-high 0.9 --iter-shuffle true \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
-  log_end "dnn2e [train]"
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph || exit 1;
+  log_end "dnn1d_dptmp [train]"
 }
-train_dnn2e
+train_dnn1d_dptmp
 

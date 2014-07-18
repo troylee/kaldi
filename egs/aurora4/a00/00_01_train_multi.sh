@@ -48,7 +48,7 @@ train_multi_tri1a(){
   log_start "tri1a [train]"
   steps/train_deltas.sh --boost-silence 1.25 --norm_vars true \
       4200 55000 feat/mfcc/train_multi data/lang exp_multi/mono_ali exp_multi/tri1a || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp exp_multi/tri1a exp_multi/tri1a/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp exp_multi/tri1a exp_multi/tri1a/graph || exit 1;
   log_end "tri1a [train]"
 }
 #train_multi_tri1a
@@ -57,10 +57,10 @@ decode_multi_tri1a(){
   log_start "tri1a [decode]"
   for i in `seq -f "%02g" 1 14`; do
     x=test${i}
-    steps/decode_deltas.sh --nj 4 --srcdir exp_multi/tri1a exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode/decode_bg_${x} || exit 1;
+    steps/decode_deltas.sh --nj 4 --srcdir exp_multi/tri1a exp_multi/tri1a/graph feat/mfcc/${x} exp_multi/tri1a/decode/${x} || exit 1;
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_multi/tri1a/decode/decode_bg_test*' | tee exp_multi/tri1a/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/tri1a/decode/test*' | tee exp_multi/tri1a/decode/test.avgwer
   log_end "tri1a [decode]"
 }
 #decode_multi_tri1a
@@ -69,10 +69,10 @@ decode_multi_tri1a_fmllr(){
   log_start "tri1a [fmllr decode]"
   for i in `seq -f "%02g" 1 14`; do
     x=test${i}
-    steps/decode_deltas_fmllr.sh --nj 8 --srcdir exp_multi/tri1a --si-dir exp_multi/tri1a/decode/decode_bg_${x} exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode_fmllr/decode_bg_${x} || exit 1;
+    steps/decode_deltas_fmllr.sh --nj 8 --srcdir exp_multi/tri1a --si-dir exp_multi/tri1a/decode/${x} exp_multi/tri1a/graph feat/mfcc/${x} exp_multi/tri1a/decode_fmllr/${x} || exit 1;
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_multi/tri1a/decode_fmllr/decode_bg_test*' | tee exp_multi/tri1a/decode_fmllr/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/tri1a/decode_fmllr/test*' | tee exp_multi/tri1a/decode_fmllr/test.avgwer
   log_end "tri1a [fmllr decode]"
 }
 #decode_multi_tri1a_fmllr
@@ -120,7 +120,7 @@ align_multi_tri1a(){
 train_multi_spr_tri1b(){
   log_start "tri1b [train]"
   steps/singlepass_retrain.sh feat/mfcc/train_multi exp_multi/tri1a_ali/train_multi exp_multi/tri1b || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp exp_multi/tri1b exp_multi/tri1b/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp exp_multi/tri1b exp_multi/tri1b/graph || exit 1;
   log_end "tri1b [train]"
 }
 #train_multi_spr_tri1b
@@ -163,10 +163,10 @@ decode_dnn2b(){
     steps/decode_nnet.sh --stage 1 --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn2b \
       --model exp_multi/dnn2a_pretrain/tri1a/pdf_align/final.mdl \
       --class-frame-counts exp_multi/dnn2a_pretrain/tri1a/pdf_align/train.counts \
-      exp_multi/dnn2a_pretrain/tri1a/graph_bcb05cnp feat/fbank/${x} exp_multi/dnn2b/decode/decode_bg_${x} || exit 1;
+      exp_multi/dnn2a_pretrain/tri1a/graph_bcb05cnp feat/fbank/${x} exp_multi/dnn2b/decode/${x} || exit 1;
     exit 0;
   done
-  local/average_wer.sh 'exp_multi/dnn2b/decode/decode_bg_test*' | tee exp_multi/dnn2b/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/dnn2b/decode/test*' | tee exp_multi/dnn2b/decode/test.avgwer
   log_end "dnn2b [decode]"
 
 }
@@ -182,7 +182,7 @@ train_dnn2c(){
   steps/train_nnet.sh --norm-vars true --dbn $dbn --hid-layers 0 --learn-rate 0.015 \
     --alidir $ali --alidir-cv $ali_dev \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp exp_multi/dnn2c exp_multi/dnn2c/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp exp_multi/dnn2c exp_multi/dnn2c/graph || exit 1;
   log_end "dnn2c [train]" 
 }
 #train_dnn2c
@@ -211,7 +211,7 @@ train_dnn1b(){
   steps/train_nnet.sh --norm-vars true --dbn $dbn --hid-layers 0 --learn-rate 0.015 \
     --alidir $ali --alidir-cv $ali_dev \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph || exit 1;
   log_end "dnn1b [train]" 
 }
 #train_dnn1b
@@ -238,7 +238,7 @@ train_dnn1c(){
   steps/train_nnet.sh --norm-vars true --mlp-init ${mlp_init} --learn-rate 0.015 \
     --alidir $ali --alidir-cv $ali_dev \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph || exit 1;
   log_end "dnn1c [train]" 
 }
 #train_dnn1c
@@ -275,7 +275,7 @@ train_dnn1d(){
   steps/train_nnet.sh --norm-vars true --mlp-init ${mlp_init} --learn-rate 0.015 \
     --alidir $ali --alidir-cv $ali_dev \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph || exit 1;
   log_end "dnn1d [train]" 
 }
 #train_dnn1d
@@ -302,7 +302,7 @@ train_dnn1e(){
   steps/train_nnet.sh --norm-vars true --mlp-init ${mlp_init} --learn-rate 0.015 \
     --alidir $ali --alidir-cv $ali_dev \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph || exit 1;
   log_end "dnn1e [train]" 
 }
 #train_dnn1e
@@ -319,7 +319,7 @@ train_dnn1d_7h(){
   steps/train_nnet.sh --norm-vars true --dbn $dbn --hid-layers 0 --learn-rate 0.015 \
     --alidir $ali --alidir-cv $ali_dev \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph || exit 1;
   log_end "dnn1d_7h [train]"
 }
 #train_dnn1d_7h
@@ -336,7 +336,7 @@ train_rbmdnn1a(){
   steps/train_nnet.sh --norm-vars true --mlp-init ${mlp_init} --learn-rate 0.015 \
     --learn-factors "0,1,1,1,1,1,1,1" --alidir $ali --alidir-cv $ali_dev \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph || exit 1;
   log_end "rbmdnn1a [train]"
 }
 #train_rbmdnn1a

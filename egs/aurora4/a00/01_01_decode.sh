@@ -44,18 +44,44 @@ decode_rub1b(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark $dir/graph_bg feat/fbank/${x} $dir/decode/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark $dir/graph feat/fbank/${x} $dir/decode/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh "$dir/decode/decode_bg_test*" | tee $dir/decode/decode_bg_test.avgwer
+  local/average_wer.sh "$dir/decode/test*" | tee $dir/decode/test.avgwer
   log_end "rub1b [decode]"
 
 }
-decode_rub1b
+#decode_rub1b
+
+decode_rub1c(){
+  log_start "rub1c [decode]"
+  dir=exp_multi/rub1c
+  rubdir=exp_multi/rub1a_pretrain
+  inv_acwt=17
+  acwt=`perl -e "print (1.0/$inv_acwt);"`;
+  i=1
+  while [ $i -le 14 ]; do
+    for j in `seq 0 $numNodes`; do
+      sid=$((i+j))
+      if [ $sid -le 14 ]; then
+        printf -v x 'test%02g' $sid
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark $dir/graph feat/fbank/${x} $dir/decode/${x}" ) &
+      fi
+    done
+    wait;
+    i=$((sid+1))
+  done
+  # write out the average WER results
+  local/average_wer.sh "$dir/decode/test*" | tee $dir/decode/test.avgwer
+  log_end "rub1c [decode]"
+
+}
+#decode_rub1c
 
 decode_rub2b(){
   log_start "rub2b [decode]"
@@ -70,18 +96,44 @@ decode_rub2b(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark $dir/graph_bg feat/fbank/${x} $dir/decode/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark $dir/graph feat/fbank/${x} $dir/decode/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh "$dir/decode/decode_bg_test*" | tee $dir/decode/decode_bg_test.avgwer
+  local/average_wer.sh "$dir/decode/test*" | tee $dir/decode/test.avgwer
   log_end "rub2b [decode]"
 
 }
-decode_rub2b
+#decode_rub2b
+
+decode_rub2c(){
+  log_start "rub2c [decode]"
+  dir=exp_multi/rub2c
+  rubdir=exp_multi/rub2a_pretrain
+  inv_acwt=17
+  acwt=`perl -e "print (1.0/$inv_acwt);"`;
+  i=1
+  while [ $i -le 14 ]; do
+    for j in `seq 0 $numNodes`; do
+      sid=$((i+j))
+      if [ $sid -le 14 ]; then
+        printf -v x 'test%02g' $sid
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark $dir/graph feat/fbank/${x} $dir/decode/${x}" ) &
+      fi
+    done
+    wait;
+    i=$((sid+1))
+  done
+  # write out the average WER results
+  local/average_wer.sh "$dir/decode/test*" | tee $dir/decode/test.avgwer
+  log_end "rub2c [decode]"
+
+}
+#decode_rub2c
 
 decode_rub3b(){
   log_start "rub3b [decode]"
@@ -96,17 +148,43 @@ decode_rub3b(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm $dir/graph_bg feat/fbank/${x} $dir/decode/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm $dir/graph feat/fbank/${x} $dir/decode/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh "$dir/decode/decode_bg_test*" | tee $dir/decode/decode_bg_test.avgwer
+  local/average_wer.sh "$dir/decode/test*" | tee $dir/decode/test.avgwer
   log_end "rub3b [decode]"
 
 }
-decode_rub3b
+#decode_rub3b
+
+decode_rub3c(){
+  log_start "rub3c [decode]"
+  dir=exp_multi/rub3c
+  rubdir=exp_multi/rub3a_pretrain
+  inv_acwt=17
+  acwt=`perl -e "print (1.0/$inv_acwt);"`;
+  i=1
+  while [ $i -le 14 ]; do
+    for j in `seq 0 $numNodes`; do
+      sid=$((i+j))
+      if [ $sid -le 14 ]; then
+        printf -v x 'test%02g' $sid
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm $dir/graph feat/fbank/${x} $dir/decode/${x}" ) &
+      fi
+    done
+    wait;
+    i=$((sid+1))
+  done
+  # write out the average WER results
+  local/average_wer.sh "$dir/decode/test*" | tee $dir/decode/test.avgwer
+  log_end "rub3c [decode]"
+
+}
+#decode_rub3c
 
 

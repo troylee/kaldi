@@ -8,8 +8,7 @@ config=            # config, which is also sent to all other scripts
 
 # NETWORK INITIALIZATION
 mlp_init=          # select initialized MLP (override initialization)
-#mlp_proto=         # select network prototype (initialize it)
-#proto_opts=        # non-default options for 'make_nnet_proto.py'
+lin_nnet=          # LIN nnet
 feature_transform= # provide feature transform (=splice,rescaling,...) (don't build new one)
 #
 hid_layers=4       # nr. of hidden layers (prior to sotfmax or bottleneck)
@@ -32,38 +31,26 @@ num_tgt=           # force to use number of outputs in the MLP (default is autod
 alidir=
 alidir_cv=
 
+# LINS
+lindir=
+lindir_cv=
+
 # TRAINING SCHEDULER
-average_grad=false
+max_iters=99
+start_halving_impr=0.5
+halving_factor=0.5
+end_learn_rate=0.0001
+learn_rate=0.015 #learning rate
 bunchsize=128 #size of the Stochastic-GD update block
-l1_penalty=0.0
 l2_penalty=0.0 #L2 regularization penalty
-l2_upperbound=15.0 
 
-momentum_init=0.1
-momentum_inc=0.1
-momentum_low=0.5
-momentum_high=0.9
-num_iters_momentum_adjust=5
-
-high_learn_rate=0.005
-num_iters_high_lrate=30
-
-low_learn_rate=0.001
-num_iters_low_lrate=20
-
-#dropout configs
-drop_input=false
-input_drop_ratio=0.2
-hidden_drop_ratio=0.5
+learn_factors=
 
 train_opts=        # options, passed to the training script
 train_tool="nnet-train-xent-hardlab-frmshuff"       # optionally change the training tool
 
-# do per-iteration shuffle
-iter_shuffle=false
-
 # OTHER
-debug=false
+use_gpu_id= # manually select GPU id to run on, (-1 disables GPU)
 seed=777    # seed value used for training data shuffling and initialization
 # End configuration.
 
@@ -90,6 +77,10 @@ if [ -z $labels ] && ([ -z $alidir ] || [ -z $alidir_cv ]); then
   echo "No label specified" && exit 1;
 fi
 
+if [ -z $lindir ] || [ -z $lindir_cv ] ; then
+  echo "No LIN dirs provided, maybe consider standard nnet training rather than NAT" && exit 1;
+fi
+
 silphonelist=`cat $lang/phones/silence.csl` || exit 1;
 
 for f in $data/feats.scp $data_cv/feats.scp; do
@@ -105,6 +96,8 @@ mkdir -p $dir/{log,nnet}
 
 # skip when already trained
 [ -e $dir/final.nnet ] && printf "\nSKIPPING TRAINING... ($0)\nnnet already trained : $dir/final.nnet ($(readlink $dir/final.nnet))\n\n" && exit 0
+
+[ -z $lin_nnet ] && lin_nnet=$dir/lin.nnet # Default LIN to be used
 
 ###### PREPARE ALIGNMENTS ######
 echo
@@ -140,6 +133,17 @@ else
   analyze-counts --verbose=1 --symbol-table=$lang/phones.txt "$labels_tr_phn" /dev/null 2>$dir/log/analyze_counts_phones.log || exit 1
 fi
 
+###### PREPARE LINS ######
+for f in $lin_nnet $lindir/lin_weight.1.scp $lindir/lin_bias.1.scp $lindir_cv/lin_weight.1.scp $lindir_cv/lin_bias.1.scp ; do
+  [ ! -f $f ] && echo "$0: no such file $f" && exit 1;
+done
+# merge archives 
+cat $lindir/lin_weight.*.scp > $dir/train_lin_weight.scp
+cat $lindir/lin_bias.*.scp > $dir/train_lin_bias.scp
+cat $lindir_cv/lin_weight.*.scp > $dir/cv_lin_weight.scp
+cat $lindir_cv/lin_bias.*.scp > $dir/cv_lin_bias.scp
+
+
 ###### PREPARE FEATURES ######
 echo
 echo "# PREPARING FEATURES"
@@ -172,14 +176,14 @@ feats_tr="$feats_tr splice-feats --left-context=${splice} --right-context=${spli
 feats_cv="$feats_cv splice-feats --left-context=${splice} --right-context=${splice} ark:- ark:- |"
 echo "${splice}" > $dir/splice
 
+# add LIN transforms
+feats_tr="$feats_tr lin-nnet-forward --apply-log=false $lin_nnet scp:$dir/train_lin_weight.scp scp:$dir/train_lin_bias.scp ark:- ark:- |"
+feats_cv="$feats_cv lin-nnet-forward --apply-log=false $lin_nnet scp:$dir/cv_lin_weight.scp scp:$dir/cv_lin_bias.scp ark:- ark:- |"
+
 # get input dim
 echo "Getting input dim : "
 num_fea=$(feat-to-dim "$feats_tr" -)
 echo "Input dim is : $num_fea"
-
-# per-iter shuffle opt
-shuffle_opt=""
-$iter_shuffle && shuffle_opt="--shuffle true --ori-tr-scp $data/feats.scp --tgt-tr-scp $dir/train.scp"
 
 ###### INITIALIZE THE NNET ######
 echo 
@@ -208,43 +212,30 @@ else
     layer_config="${layer_config}:${hid_dim}"
   done
   layer_config="${layer_config}:${num_tgt}"
-  utils/gen_mlp_dropout_init.py --dim=${layer_config} --gauss --negbias --dropInput=${drop_input} --inputDropRatio=${input_drop_ratio} --hiddenDropRatio=${hidden_drop_ratio} >> $mlp_init
+  utils/gen_mlp_init.py --dim=${layer_config} --gauss --negbias >> $mlp_init
 fi
 
 ###### TRAIN ######
 echo
-echo "# RUNNING THE NN-TRAINING (DROPOUT)"
-# stage 1: first 5 iterations of momentum adjusting
-steps/finetune_dropout.sh $shuffle_opt --debug $debug ${feature_transform:+ --feature-transform "$feature_transform"} \
-  --num_iters ${num_iters_momentum_adjust} --momentum-init ${momentum_init} --momentum-inc ${momentum_inc} \
-  --learn-rate ${high_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
-  --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} --average-grad ${average_grad} \
-  "$feats_tr" "$feats_cv" "$labels_tr" "$labels_cv" \
-  $mlp_init $dir/nnet/nnet_stage1
+echo "# RUNNING THE NN-TRAINING SCHEDULER"
+steps/nnet_scheduler/train_scheduler.sh \
+  ${feature_transform:+ --feature-transform "$feature_transform"} \
+  ${learn_factors:+ --learn-factors "$learn_factors"} \
+  --learn-rate $learn_rate --max-iters $max_iters \
+  --start-halving-impr $start_halving_impr \
+  --halving-factor $halving_factor \
+  --end_learn_rate $end_learn_rate \
+  --bunchsize $bunchsize \
+  --l2-penalty $l2_penalty \
+  ${train_opts} \
+  ${train_tool:+ --train-tool "$train_tool"} \
+  ${config:+ --config $config} \
+  $mlp_init "$feats_tr" "$feats_cv" "$labels_tr" "$labels_cv" $dir || exit 1
 
-# stage 2: 30 epochs of high learning rate, low_momentum
-steps/finetune_dropout.sh $shuffle_opt --debug $debug ${feature_transform:+ --feature-transform "$feature_transform"} \
-  --num_iters ${num_iters_high_lrate} --momentum-init ${momentum_low} --momentum-inc 0.0 \
-  --learn-rate ${low_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
-  --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} --average-grad ${average_grad} \
-  "$feats_tr" "$feats_cv" "$labels_tr" "$labels_cv" \
-  $dir/nnet/nnet_stage1 $dir/nnet/nnet_stage2
 
-# stage 3: 20 epochs of low learning rate
-steps/finetune_dropout.sh $shuffle_opt --debug $debug ${feature_transform:+ --feature-transform "$feature_transform"} \
-  --num_iters ${num_iters_low_lrate} --momentum-init ${momentum_high} --momentum-inc 0.0 \
-  --learn-rate ${low_learn_rate} --bunchsize ${bunchsize} --l1-penalty ${l1_penalty} \
-  --l2-penalty ${l2_penalty} --l2-upperbound ${l2_upperbound} --average-grad ${average_grad} \
-  "$feats_tr" "$feats_cv" "$labels_tr" "$labels_cv" \
-  $dir/nnet/nnet_stage2 $dir/nnet/nnet_stage3
-    
-# link to the final
-mlp_final=`readlink $dir/nnet/nnet_stage3`
-[[ ${mlp_final:0:1} != "/" && ${mlp_final:0:1} != "~" ]] && mlp_final=$PWD/$mlp_final
-( cd $dir; ln -s $mlp_final final.nnet; )
-
-echo "$0 successfuly finished.. $dir/final.nnet"
+echo "$0 successfuly finished.. $dir"
 
 sleep 3
 exit 0
+
 

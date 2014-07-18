@@ -41,14 +41,14 @@ decode_clean_tri1a(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_clean/tri1a exp_clean/tri1a/graph_bg feat/mfcc/${x} exp_clean/tri1a/decode/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_clean/tri1a exp_clean/tri1a/graph feat/mfcc/${x} exp_clean/tri1a/decode/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_clean/tri1a/decode/decode_bg_test*' | tee exp_clean/tri1a/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_clean/tri1a/decode/test*' | tee exp_clean/tri1a/decode/test.avgwer
   log_end "tri1a [decode]"
 }
 #decode_clean_tri1a
@@ -62,14 +62,14 @@ decode_clean_tri1b(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_clean/tri1b exp_clean/tri1b/graph_bg feat/mfcc/${x} exp_clean/tri1b/decode/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_clean/tri1b exp_clean/tri1b/graph feat/mfcc/${x} exp_clean/tri1b/decode/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_clean/tri1b/decode/decode_bg_test*' | tee exp_clean/tri1b/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_clean/tri1b/decode/test*' | tee exp_clean/tri1b/decode/test.avgwer
   log_end "tri1b [decode]"
 }
 #decode_clean_tri1b
@@ -83,14 +83,14 @@ decode_clean_tri1b_vtsmodel(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_vts_model.sh --nj 8 --srcdir exp_clean/tri1b exp_clean/tri1b/graph_bg feat/mfcc/${x} exp_clean/tri1b/decode_vts_model/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_vts_model.sh --nj 8 --srcdir exp_clean/tri1b exp_clean/tri1b/graph feat/mfcc/${x} exp_clean/tri1b/decode_vts_model/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_clean/tri1b/decode_vts_model/decode_bg_test*' | tee exp_clean/tri1b/decode_vts_model/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_clean/tri1b/decode_vts_model/test*' | tee exp_clean/tri1b/decode_vts_model/test.avgwer
   log_end "tri1b [vtsmodel decode]"
 }
 #decode_clean_tri1b_vtsmodel
@@ -106,14 +106,14 @@ decode_multi_tri1a(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_multi/tri1a exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_multi/tri1a exp_multi/tri1a/graph feat/mfcc/${x} exp_multi/tri1a/decode/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_multi/tri1a/decode/decode_bg_test*' | tee exp_multi/tri1a/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/tri1a/decode/test*' | tee exp_multi/tri1a/decode/test.avgwer
   log_end "tri1a [decode]"
 }
 #decode_multi_tri1a
@@ -128,17 +128,39 @@ decode_multi_tri1a_fmllr(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas_fmllr.sh --nj 8 --srcdir exp_multi/tri1a --si-dir exp_multi/tri1a/decode/decode_bg_${x} exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode_fmllr/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas_fmllr.sh --nj 8 --srcdir exp_multi/tri1a --si-dir exp_multi/tri1a/decode/${x} exp_multi/tri1a/graph feat/mfcc/${x} exp_multi/tri1a/decode_fmllr/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_multi/tri1a/decode_fmllr/decode_bg_test*' | tee exp_multi/tri1a/decode_fmllr/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/tri1a/decode_fmllr/test*' | tee exp_multi/tri1a/decode_fmllr/test.avgwer
   log_end "tri1a [fmllr decode]"
 }
-decode_multi_tri1a_fmllr
+#decode_multi_tri1a_fmllr
+
+decode_multi_tri1a_fmllr_utt(){
+  # decode exp_multi/tri1a
+  log_start "tri1a [fmllr-utt decode]"
+  i=1
+  while [ $i -le 14 ]; do
+    for j in `seq 0 $numNodes`; do
+      sid=$((i+j))
+      if [ $sid -le 14 ]; then
+        printf -v x 'test%02g' $sid
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas_fmllr.sh --per-speaker false --nj 8 --srcdir exp_multi/tri1a --si-dir exp_multi/tri1a/decode/${x} exp_multi/tri1a/graph feat/mfcc/${x} exp_multi/tri1a/decode_fmllr_utt/${x}" ) &
+      fi
+    done
+    wait;
+    i=$((sid+1))
+  done
+  # write out the average WER results
+  local/average_wer.sh 'exp_multi/tri1a/decode_fmllr_utt/test*' | tee exp_multi/tri1a/decode_fmllr_utt/test.avgwer
+  log_end "tri1a [fmllr-utt decode]"
+}
+#decode_multi_tri1a_fmllr_utt
 
 decode_multi_tri1b(){
   log_start "tri1b [decode]"
@@ -149,14 +171,14 @@ decode_multi_tri1b(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_multi/tri1b exp_multi/tri1b/graph_bg feat/mfcc/${x} exp_multi/tri1b/decode/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_multi/tri1b exp_multi/tri1b/graph feat/mfcc/${x} exp_multi/tri1b/decode/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_multi/tri1b/decode/decode_bg_test*' | tee exp_multi/tri1b/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/tri1b/decode/test*' | tee exp_multi/tri1b/decode/test.avgwer
   log_end "tri1b [decode]"
 }
 #decode_multi_tri1b
@@ -170,14 +192,14 @@ decode_multi_tri1b_vtsmodel(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_vts_model.sh --nj 8 --srcdir exp_multi/tri1b exp_multi/tri1b/graph_bg feat/mfcc/${x} exp_multi/tri1b/decode_vts_model/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_vts_model.sh --nj 8 --srcdir exp_multi/tri1b exp_multi/tri1b/graph feat/mfcc/${x} exp_multi/tri1b/decode_vts_model/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_multi/tri1b/decode_vts_model/decode_bg_test*' | tee exp_multi/tri1b/decode_vts_model/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/tri1b/decode_vts_model/test*' | tee exp_multi/tri1b/decode_vts_model/test.avgwer
   log_end "tri1b [vtsmodel decode]"
 }
 #decode_multi_tri1b_vtsmodel
@@ -194,14 +216,14 @@ decode_multi_dnn2b(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn2b --model exp_multi/dnn2a_pretrain/tri1a/pdf_align/final.mdl --class-frame-counts exp_multi/dnn2a_pretrain/tri1a/pdf_align/train.counts exp_multi/dnn2a_pretrain/tri1a/graph_bcb05cnp feat/fbank/${x} exp_multi/dnn2b/decode/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn2b --model exp_multi/dnn2a_pretrain/tri1a/pdf_align/final.mdl --class-frame-counts exp_multi/dnn2a_pretrain/tri1a/pdf_align/train.counts exp_multi/dnn2a_pretrain/tri1a/graph_bcb05cnp feat/fbank/${x} exp_multi/dnn2b/decode/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_multi/dnn2b/decode/decode_bg_test*' | tee exp_multi/dnn2b/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/dnn2b/decode/test*' | tee exp_multi/dnn2b/decode/test.avgwer
   log_end "dnn2b [decode]"
 }
 #decode_multi_dnn2b
@@ -218,14 +240,14 @@ decode_multi_dnn2c(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn2c exp_multi/dnn2c/graph_bg feat/fbank/${x} exp_multi/dnn2c/decode/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn2c exp_multi/dnn2c/graph feat/fbank/${x} exp_multi/dnn2c/decode/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_multi/dnn2c/decode/decode_bg_test*' | tee exp_multi/dnn2c/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/dnn2c/decode/test*' | tee exp_multi/dnn2c/decode/test.avgwer
   log_end "dnn2c [decode]"
 }
 #decode_multi_dnn2c
@@ -244,14 +266,14 @@ decode_multi_dnn1b(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1b exp_multi/dnn1b/graph_bg feat/fbank/${x} exp_multi/dnn1b/decode/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1b exp_multi/dnn1b/graph feat/fbank/${x} exp_multi/dnn1b/decode/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_multi/dnn1b/decode/decode_bg_test*' | tee exp_multi/dnn1b/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/dnn1b/decode/test*' | tee exp_multi/dnn1b/decode/test.avgwer
   log_end "dnn1b [decode]"
 }
 #decode_multi_dnn1b
@@ -267,14 +289,14 @@ decode_multi_dnn1c(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1c exp_multi/dnn1c/graph_bg feat/fbank/${x} exp_multi/dnn1c/decode/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1c exp_multi/dnn1c/graph feat/fbank/${x} exp_multi/dnn1c/decode/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_multi/dnn1c/decode/decode_bg_test*' | tee exp_multi/dnn1c/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/dnn1c/decode/test*' | tee exp_multi/dnn1c/decode/test.avgwer
   log_end "dnn1c [decode]"
 }
 #decode_multi_dnn1c
@@ -290,14 +312,14 @@ decode_multi_dnn1d(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1d exp_multi/dnn1d/graph_bg feat/fbank/${x} exp_multi/dnn1d/decode/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1d exp_multi/dnn1d/graph feat/fbank/${x} exp_multi/dnn1d/decode/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_multi/dnn1d/decode/decode_bg_test*' | tee exp_multi/dnn1d/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/dnn1d/decode/test*' | tee exp_multi/dnn1d/decode/test.avgwer
   log_end "dnn1d [decode]"
 }
 #decode_multi_dnn1d
@@ -313,14 +335,14 @@ decode_multi_dnn1e(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1e exp_multi/dnn1e/graph_bg feat/fbank/${x} exp_multi/dnn1e/decode/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1e exp_multi/dnn1e/graph feat/fbank/${x} exp_multi/dnn1e/decode/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_multi/dnn1e/decode/decode_bg_test*' | tee exp_multi/dnn1e/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/dnn1e/decode/test*' | tee exp_multi/dnn1e/decode/test.avgwer
   log_end "dnn1e [decode]"
 }
 #decode_multi_dnn1e
@@ -336,14 +358,14 @@ decode_multi_dnn1d_7h(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1d_7h exp_multi/dnn1d_7h/graph_bg feat/fbank/${x} exp_multi/dnn1d_7h/decode/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1d_7h exp_multi/dnn1d_7h/graph feat/fbank/${x} exp_multi/dnn1d_7h/decode/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_multi/dnn1d_7h/decode/decode_bg_test*' | tee exp_multi/dnn1d_7h/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/dnn1d_7h/decode/test*' | tee exp_multi/dnn1d_7h/decode/test.avgwer
   log_end "dnn1d_7h [decode]"
 }
 #decode_multi_dnn1d_7h
@@ -359,14 +381,14 @@ decode_multi_rbmdnn1a(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/rbmdnn1a exp_multi/rbmdnn1a/graph_bg feat/fbank/${x} exp_multi/rbmdnn1a/decode/decode_bg_${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/rbmdnn1a exp_multi/rbmdnn1a/graph feat/fbank/${x} exp_multi/rbmdnn1a/decode/${x}" ) &
       fi
     done
     wait;
     i=$((sid+1))
   done
   # write out the average WER results
-  local/average_wer.sh 'exp_multi/rbmdnn1a/decode/decode_bg_test*' | tee exp_multi/rbmdnn1a/decode/decode_bg_test.avgwer
+  local/average_wer.sh 'exp_multi/rbmdnn1a/decode/test*' | tee exp_multi/rbmdnn1a/decode/test.avgwer
   log_end "rbmdnn1a [decode]"
 }
 #decode_multi_rbmdnn1a
