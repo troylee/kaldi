@@ -20,6 +20,7 @@
 #include "nnet/nnet-nnet.h"
 #include "nnet/nnet-component.h"
 #include "nnet/nnet-activation.h"
+#include "nnet/nnet-biasedlinearity.h"
 
 int main(int argc, char *argv[]) {
   try {
@@ -58,13 +59,25 @@ int main(int argc, char *argv[]) {
     {
       Output ko(model_out_filename, binary_write);
 
+      bool apply_scale = false;
+      BaseFloat scale = 1.0;
+
       for (int32 i=0; i<nnet.LayerCount(); ++i){
         Component *layer = nnet.Layer(i);
         if(layer->GetType()==Component::kDropout){
           Dropout *dp=dynamic_cast<Dropout*>(layer);
-          Scale *sc=new Scale(dp->InputDim(), dp->OutputDim(), NULL);
-          sc->SetScale(1- dp->GetDropRatio());
-          sc->Write(ko.Stream(), binary_write);
+          scale = 1- dp->GetDropRatio();
+          apply_scale = true;
+        } else if (apply_scale && layer->GetType()==Component::kBiasedLinearity){
+          BiasedLinearity *bl=dynamic_cast<BiasedLinearity*>(layer);
+          CuMatrix<BaseFloat> weight(bl->GetLinearityWeight());
+          weight.Scale(scale);
+          bl->SetLinearityWeight(weight, kNoTrans);
+          bl->Write(ko.Stream(), binary_write);
+          apply_scale = false;
+          scale = 1.0;
+        } else if (apply_scale) {
+          KALDI_ERR << "Layer " << i << " following the dropout layer is not supported yet!";
         } else {
           layer->Write(ko.Stream(), binary_write);
         }
