@@ -81,8 +81,8 @@ iter1_train_lin(){
     x=train$i
     mkdir -p $dir/$x/log
     ali_dev=exp_multi/dnn1c_ali/dev$i
-    steps/train_nnet.sh --learn-rate 0.005 --norm-vars true --splice 5 \
-      --learn-factors "1,0,0,0,0,0,0,0" --accept-first-update false \
+    steps/train_nnet.sh --learn-rate 0.005 --end-learn-rate 0.000001 --norm-vars true --splice 5 \
+      --learn-factors "1,0,0,0,0,0,0,0" --accept-first-update true \
       --mlp-init $mlp_init --alidir $ali --alidir-cv $ali_dev \
       $expdir/feat/$x feat/fbank/dev$i data/lang $dir/$x 
   done

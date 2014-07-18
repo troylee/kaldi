@@ -63,18 +63,35 @@ iter1_train_lins(){
 #iter1_train_lins
 
 # estimate test LINs using correct transcriptions for oracle experiments
-iter1_train_lins_test(){
+iter1_train_oracle_uttlin(){
   sidir=exp_multi/dnn1d
   # test data
   for i in `seq -f "%02g" 1 14`; do
     x=test${i}
-    steps/train_uttlin_1iter.sh --nj 8 --nnet-lin $dir/iter1_lin.init --srcdir $sidir \
+    steps/train_uttlin_1iter.sh --learn-rate 0.05 --nj 8 --nnet-lin $dir/iter1_lin.init --srcdir $sidir \
       --alidir exp_multi/dnn1c_ali/$x \
       feat/fbank/$x data/lang $dir/iter1_lins/$x || exit 1;
   done
   log_end "nat [1 lins]"
 }
-#iter1_train_lins_test
+iter1_train_oracle_uttlin
+
+# decoding using oracle LINs
+decode_oracle_uttlin(){
+  log_start "decode [oracle uttlin]"
+  lin_nnet=$dir/iter1_lin.init
+  inv_acwt=17
+  acwt=`perl -e "print (1.0/$inv_acwt);"`;
+  for i in `seq -f "%02g" 1 14`; do
+    x=test${i}
+    lindir=$dir/iter1_lins/$x
+    steps/decode_nnet_lin.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --lin-nnet $lin_nnet --lindir $lindir --srcdir exp_multi/dnn1d exp_multi/dnn1d/graph feat/fbank/$x $dir/decode_oracle_uttlin/$x
+  done
+  # write out the average WER results
+  local/average_wer.sh '$dir/decode_oracle_uttlin/test*' | tee $dir/decode_oracle_uttlin/test.avgwer
+  log_end "decode [oracle uttlin]"
+}
+decode_oracle_uttlin
 
 # training the nnet using estimated lins
 iter1_train_nnet(){
@@ -96,5 +113,5 @@ iter1_train_nnet(){
   utils/mkgraph.sh data/lang_bcb05cnp $dir/iter1_nnet $dir/iter1_nnet/graph || exit 1;
   log_end "nat [1 nnet]"
 }
-iter1_train_nnet
+#iter1_train_nnet
 

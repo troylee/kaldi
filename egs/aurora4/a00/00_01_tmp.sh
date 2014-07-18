@@ -35,9 +35,9 @@ train_dnn1d_dropout(){
   ori_mlp=exp_multi/dnn1b/nnet.init
   mkdir -p $dir/log
   nnet-add-dropout --add-to-input=false --binary=false \
-    --hidden-drop-ratio=0.5 $ori_mlp $dir/nnet.init 1 3 5 7 9 11 || exit 1;
+    --hidden-drop-ratio=0.5 $ori_mlp $dir/nnet.init 11 || exit 1;
   steps/train_nnet_dropout.sh --norm-vars true --splice 5 --mlp-init $dir/nnet.init \
-    --alidir $ali --alidir-cv $ali_dev --debug true \
+    --alidir $ali --alidir-cv $ali_dev --debug true --iter-shuffle true \
     --bunchsize 256 --l2-upperbound 15.0 \
     --high-learn-rate 0.002 --low-learn-rate 0.001 \
     --momentum-init 0.1 --momentum-inc 0.05 --num-iters-momentum-adjust 8 \
