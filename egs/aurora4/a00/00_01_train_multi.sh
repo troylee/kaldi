@@ -255,6 +255,26 @@ align_dnn1c(){
 }
 #align_dnn1c
 
+align_dnn1c_test(){
+  log_start "dnn1c [realign-test]"
+  for i in `seq -f "%02g" 1 14`; do
+    x=test${i}
+    steps/align_nnet.sh --nj 4 --retry-beam 200 feat/fbank/$x data/lang exp_multi/dnn1c exp_multi/dnn1c_ali/$x || exit 1;
+  done
+  log_end "dnn1c [realign-test]"
+}
+#align_dnn1c_test
+
+align_dnn1c_dev(){
+  log_start "dnn1c [realign-dev]"
+  for i in `seq -f "%02g" 1 14`; do
+    x=dev${i}
+    steps/align_nnet.sh --nj 4 --retry-beam 200 feat/fbank/$x data/lang exp_multi/dnn1c exp_multi/dnn1c_ali/$x || exit 1;
+  done
+  log_end "dnn1c [realign-dev]"
+}
+align_dnn1c_dev
+
 train_dnn1d(){
   log_start "dnn1d [train]"
   dir=exp_multi/dnn1d

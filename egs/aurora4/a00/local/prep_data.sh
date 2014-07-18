@@ -67,7 +67,7 @@ done
 cat $AURORA/lists/devtest01_1206_16k.list \
   | $local/aurora2flist.pl $AURORA | sort -u > dev_clean.flist
 # generate the corresponding multi-style list
-$utils/convert_clean2multi.py test_id2name.map dev_clean.flist dev_multi.flist
+$utils/convert_clean2multi.py test_id2name.map dev_clean.flist dev_multi.flist dev_multi.utt2nos
 
 #Test Set
 for x in $(seq -f "%02g" 01 14); do
