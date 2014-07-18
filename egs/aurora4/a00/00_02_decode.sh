@@ -41,7 +41,7 @@ decode_clean_tri1a(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_clean/tri1a exp_clean/tri1a/graph_bg feat/mfcc/${x} exp_clean/tri1a/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_clean/tri1a exp_clean/tri1a/graph feat/mfcc/${x} exp_clean/tri1a/decode/${x}" ) &
       fi
     done
     wait;
@@ -62,7 +62,7 @@ decode_clean_tri1b(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_clean/tri1b exp_clean/tri1b/graph_bg feat/mfcc/${x} exp_clean/tri1b/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_clean/tri1b exp_clean/tri1b/graph feat/mfcc/${x} exp_clean/tri1b/decode/${x}" ) &
       fi
     done
     wait;
@@ -83,7 +83,7 @@ decode_clean_tri1b_vtsmodel(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_vts_model.sh --nj 8 --srcdir exp_clean/tri1b exp_clean/tri1b/graph_bg feat/mfcc/${x} exp_clean/tri1b/decode_vts_model/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_vts_model.sh --nj 8 --srcdir exp_clean/tri1b exp_clean/tri1b/graph feat/mfcc/${x} exp_clean/tri1b/decode_vts_model/${x}" ) &
       fi
     done
     wait;
@@ -106,7 +106,7 @@ decode_multi_tri1a(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_multi/tri1a exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_multi/tri1a exp_multi/tri1a/graph feat/mfcc/${x} exp_multi/tri1a/decode/${x}" ) &
       fi
     done
     wait;
@@ -128,7 +128,7 @@ decode_multi_tri1a_fmllr(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas_fmllr.sh --nj 8 --srcdir exp_multi/tri1a --si-dir exp_multi/tri1a/decode/${x} exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode_fmllr/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas_fmllr.sh --nj 8 --srcdir exp_multi/tri1a --si-dir exp_multi/tri1a/decode/${x} exp_multi/tri1a/graph feat/mfcc/${x} exp_multi/tri1a/decode_fmllr/${x}" ) &
       fi
     done
     wait;
@@ -150,7 +150,7 @@ decode_multi_tri1a_fmllr_utt(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas_fmllr.sh --per-speaker false --nj 8 --srcdir exp_multi/tri1a --si-dir exp_multi/tri1a/decode/${x} exp_multi/tri1a/graph_bg feat/mfcc/${x} exp_multi/tri1a/decode_fmllr_utt/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas_fmllr.sh --per-speaker false --nj 8 --srcdir exp_multi/tri1a --si-dir exp_multi/tri1a/decode/${x} exp_multi/tri1a/graph feat/mfcc/${x} exp_multi/tri1a/decode_fmllr_utt/${x}" ) &
       fi
     done
     wait;
@@ -171,7 +171,7 @@ decode_multi_tri1b(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_multi/tri1b exp_multi/tri1b/graph_bg feat/mfcc/${x} exp_multi/tri1b/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_deltas.sh --nj 8 --srcdir exp_multi/tri1b exp_multi/tri1b/graph feat/mfcc/${x} exp_multi/tri1b/decode/${x}" ) &
       fi
     done
     wait;
@@ -192,7 +192,7 @@ decode_multi_tri1b_vtsmodel(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_vts_model.sh --nj 8 --srcdir exp_multi/tri1b exp_multi/tri1b/graph_bg feat/mfcc/${x} exp_multi/tri1b/decode_vts_model/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_vts_model.sh --nj 8 --srcdir exp_multi/tri1b exp_multi/tri1b/graph feat/mfcc/${x} exp_multi/tri1b/decode_vts_model/${x}" ) &
       fi
     done
     wait;
@@ -240,7 +240,7 @@ decode_multi_dnn2c(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn2c exp_multi/dnn2c/graph_bg feat/fbank/${x} exp_multi/dnn2c/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn2c exp_multi/dnn2c/graph feat/fbank/${x} exp_multi/dnn2c/decode/${x}" ) &
       fi
     done
     wait;
@@ -266,7 +266,7 @@ decode_multi_dnn1b(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1b exp_multi/dnn1b/graph_bg feat/fbank/${x} exp_multi/dnn1b/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1b exp_multi/dnn1b/graph feat/fbank/${x} exp_multi/dnn1b/decode/${x}" ) &
       fi
     done
     wait;
@@ -289,7 +289,7 @@ decode_multi_dnn1c(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1c exp_multi/dnn1c/graph_bg feat/fbank/${x} exp_multi/dnn1c/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1c exp_multi/dnn1c/graph feat/fbank/${x} exp_multi/dnn1c/decode/${x}" ) &
       fi
     done
     wait;
@@ -312,7 +312,7 @@ decode_multi_dnn1d(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1d exp_multi/dnn1d/graph_bg feat/fbank/${x} exp_multi/dnn1d/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1d exp_multi/dnn1d/graph feat/fbank/${x} exp_multi/dnn1d/decode/${x}" ) &
       fi
     done
     wait;
@@ -335,7 +335,7 @@ decode_multi_dnn1e(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1e exp_multi/dnn1e/graph_bg feat/fbank/${x} exp_multi/dnn1e/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1e exp_multi/dnn1e/graph feat/fbank/${x} exp_multi/dnn1e/decode/${x}" ) &
       fi
     done
     wait;
@@ -358,7 +358,7 @@ decode_multi_dnn1d_7h(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1d_7h exp_multi/dnn1d_7h/graph_bg feat/fbank/${x} exp_multi/dnn1d_7h/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/dnn1d_7h exp_multi/dnn1d_7h/graph feat/fbank/${x} exp_multi/dnn1d_7h/decode/${x}" ) &
       fi
     done
     wait;
@@ -381,7 +381,7 @@ decode_multi_rbmdnn1a(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/rbmdnn1a exp_multi/rbmdnn1a/graph_bg feat/fbank/${x} exp_multi/rbmdnn1a/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir exp_multi/rbmdnn1a exp_multi/rbmdnn1a/graph feat/fbank/${x} exp_multi/rbmdnn1a/decode/${x}" ) &
       fi
     done
     wait;

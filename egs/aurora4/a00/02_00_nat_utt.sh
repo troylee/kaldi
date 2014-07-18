@@ -93,7 +93,7 @@ iter1_train_nnet(){
     --alidir $ali --alidir-cv $ali_dev \
     --lindir $lindir --lindir-cv $lindir_dev \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir/iter1_nnet || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp $dir/iter1_nnet $dir/iter1_nnet/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir/iter1_nnet $dir/iter1_nnet/graph || exit 1;
   log_end "nat [1 nnet]"
 }
 iter1_train_nnet

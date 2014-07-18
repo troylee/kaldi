@@ -44,7 +44,7 @@ decode_rub1b(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark $dir/graph_bg feat/fbank/${x} $dir/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark $dir/graph feat/fbank/${x} $dir/decode/${x}" ) &
       fi
     done
     wait;
@@ -70,7 +70,7 @@ decode_rub1c(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark $dir/graph_bg feat/fbank/${x} $dir/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark $dir/graph feat/fbank/${x} $dir/decode/${x}" ) &
       fi
     done
     wait;
@@ -96,7 +96,7 @@ decode_rub2b(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark $dir/graph_bg feat/fbank/${x} $dir/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark $dir/graph feat/fbank/${x} $dir/decode/${x}" ) &
       fi
     done
     wait;
@@ -122,7 +122,7 @@ decode_rub2c(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark $dir/graph_bg feat/fbank/${x} $dir/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark $dir/graph feat/fbank/${x} $dir/decode/${x}" ) &
       fi
     done
     wait;
@@ -148,7 +148,7 @@ decode_rub3b(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm $dir/graph_bg feat/fbank/${x} $dir/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm $dir/graph feat/fbank/${x} $dir/decode/${x}" ) &
       fi
     done
     wait;
@@ -174,7 +174,7 @@ decode_rub3c(){
       if [ $sid -le 14 ]; then
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm $dir/graph_bg feat/fbank/${x} $dir/decode/${x}" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir --rbm-mdl $rubdir/final.rbm $dir/graph feat/fbank/${x} $dir/decode/${x}" ) &
       fi
     done
     wait;

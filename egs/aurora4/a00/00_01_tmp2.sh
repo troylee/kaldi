@@ -43,7 +43,7 @@ train_dnn1d_dptmp(){
     --momentum-init 0.1 --momentum-inc 0.05 --num-iters-momentum-adjust 8 \
     --momentum-low 0.9 --momentum-high 0.9 --iter-shuffle true \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph || exit 1;
   log_end "dnn1d_dptmp [train]"
 }
 train_dnn1d_dptmp

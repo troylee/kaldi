@@ -87,7 +87,7 @@ train_rub1b(){
     --rbm-mdl $rbm_mdl --hidbias $hidbias --hidbias-cv $hidbias_dev \
     --alidir $ali --alidir-cv $ali_dev \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph || exit 1;
   log_end "rub1b [train]"
 }
 #train_rub1b
@@ -102,7 +102,7 @@ decode_rub1b(){
     x=test${i}
     steps/rbmdnn/decode_rbmdnn.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --srcdir $dir \
       --rbm-mdl $rubdir/final.rbm --hidbias ark:$rubdir/test/${x}/final_hidbias.ark \
-      $dir/graph_bg feat/fbank/${x} $dir/decode/${x} || exit 1;
+      $dir/graph feat/fbank/${x} $dir/decode/${x} || exit 1;
   done
   local/average_wer.sh "$dir/decode/test*" | tee $dir/decode/test.avgwer
   log_end "rub1b [decode]"
@@ -129,7 +129,7 @@ train_rub1c(){
     --rbm-mdl $rbm_mdl --hidbias $hidbias --hidbias-cv $hidbias_dev \
     --alidir $ali --alidir-cv $ali_dev --accept-first-update true \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph || exit 1;
   log_end "rub1c [train]"
 }
 #train_rub1c
@@ -191,7 +191,7 @@ train_rub2b(){
     --rbm-mdl $rbm_mdl --hidbias $hidbias --hidbias-cv $hidbias_dev \
     --alidir $ali --alidir-cv $ali_dev \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph || exit 1;
   log_end "rub2b [train]"
 }
 #train_rub2b
@@ -215,7 +215,7 @@ train_rub2c(){
     --rbm-mdl $rbm_mdl --hidbias $hidbias --hidbias-cv $hidbias_dev \
     --alidir $ali --alidir-cv $ali_dev --accept-first-update true \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph || exit 1;
   log_end "rub2c [train]"
 }
 #train_rub2c
@@ -276,7 +276,7 @@ train_rub3b(){
     --rbm-mdl $rbm_mdl \
     --alidir $ali --alidir-cv $ali_dev \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph || exit 1;
   log_end "rub3b [train]"
 }
 #train_rub3b
@@ -298,7 +298,7 @@ train_rub3c(){
     --rbm-mdl $rbm_mdl \
     --alidir $ali --alidir-cv $ali_dev --accept-first-update true \
     feat/fbank/train_multi feat/fbank/dev_multi data/lang $dir || exit 1;
-  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph_bg || exit 1;
+  utils/mkgraph.sh data/lang_bcb05cnp $dir $dir/graph || exit 1;
   log_end "rub3c [train]"
 }
 #train_rub3c

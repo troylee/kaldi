@@ -48,7 +48,7 @@ decode_oracle_uttlin(){
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
         lindir=$dir/iter1_lins/$x
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet_lin.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --lin-nnet $lin_nnet --lindir $lindir --srcdir exp_multi/dnn1d exp_multi/dnn1d/graph_bg feat/fbank/$x $dir/decode_oracle_uttlin/$x" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet_lin.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --lin-nnet $lin_nnet --lindir $lindir --srcdir exp_multi/dnn1d exp_multi/dnn1d/graph feat/fbank/$x $dir/decode_oracle_uttlin/$x" ) &
       fi
     done
     wait;
@@ -78,7 +78,7 @@ decode_uttlin(){
         printf -v x 'test%02g' $sid
         echo ${nodes[$j]} $x
         tra=$tra_align_dir/decode/$x/scoring/17.tra
-        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet_lin.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --lin-nnet $lin_nnet --tra $tra --tra-align-dir $tra_align_dir --srcdir exp_multi/dnn1d exp_multi/dnn1d/graph_bg feat/fbank/$x $dir/decode_uttlin/$x" ) &
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet_lin.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --lin-nnet $lin_nnet --tra $tra --tra-align-dir $tra_align_dir --srcdir exp_multi/dnn1d exp_multi/dnn1d/graph feat/fbank/$x $dir/decode_uttlin/$x" ) &
       fi
     done
     wait;
