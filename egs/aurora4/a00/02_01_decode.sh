@@ -35,12 +35,26 @@ decode_oracle_uttlin(){
   # LIN dir
   lindir=$dir/iter1_lins/test01
   lin_nnet=$dir/iter1_lin.init
-  steps/decode_nnet_lin.sh --nj 8 --lin-nnet $lin_nnet --lindir $lindir \
-    --srcdir exp_multi/dnn1d \
-    exp_multi/dnn1d/graph_bg feat/fbank/test01 $dir/decode_oracle_uttlin/test01
+  inv_acwt=17
+  acwt=`perl -e "print (1.0/$inv_acwt);"`;
+  i=1
+  while [ $i -le 14 ]; do
+    for j in `seq 0 $numNodes`; do
+      sid=$((i+j))
+      if [ $sid -le 14 ]; then
+        printf -v x 'test%02g' $sid
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet_lin.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --lin-nnet $lin_nnet --lindir $lindir --srcdir exp_multi/dnn1d exp_multi/dnn1d/graph_bg feat/fbank/$x $dir/decode_oracle_uttlin/decode_bg_$x" ) &
+      fi
+    done
+    wait;
+    i=$((sid+1))
+  done
+  # write out the average WER results
+  local/average_wer.sh '$dir/decode_oracle_uttlin/decode_bg_test*' | tee $dir/decode_oracle_uttlin/decode_bg_test.avgwer
   log_end "decode [oracle uttlin]"
 }
-#decode_oracle_uttlin
+decode_oracle_uttlin
 
 # decoing using SI DNN's recognition results
 decode_uttlin(){
@@ -50,13 +64,25 @@ decode_uttlin(){
   tra=$tra_align_dir/decode/decode_bg_test01/scoring/17.tra
   # LIN
   lin_nnet=$dir/iter1_lin.init
-  steps/decode_nnet_lin.sh --nj 8 --lin-nnet $lin_nnet \
-    --tra $tra --tra-align-dir $tra_align_dir \
-    --srcdir exp_multi/dnn1d \
-    exp_multi/dnn1d/graph_bg feat/fbank/test01 $dir/decode_uttlin/test01
+  inv_acwt=17
+  acwt=`perl -e "print (1.0/$inv_acwt);"`;
+  i=1
+  while [ $i -le 14 ]; do
+    for j in `seq 0 $numNodes`; do
+      sid=$((i+j))
+      if [ $sid -le 14 ]; then
+        printf -v x 'test%02g' $sid
+        echo ${nodes[$j]} $x
+        ( ssh ${nodes[$j]} "cd $cwd; steps/decode_nnet_lin.sh --nj 8 --acwt $acwt --beam 15.0 --latbeam 9.0 --lin-nnet $lin_nnet --tra $tra --tra-align-dir $tra_align_dir --srcdir exp_multi/dnn1d exp_multi/dnn1d/graph_bg feat/fbank/$x $dir/decode_uttlin/decode_bg_$x" ) &
+      fi
+    done
+    wait;
+    i=$((sid+1))
+  done
+  # write out the average WER results
+  local/average_wer.sh '$dir/decode_uttlin/decode_bg_test*' | tee $dir/decode_uttlin/decode_bg_test.avgwer
   log_end "decode [uttlin]"
 }
-decode_uttlin
-
+#decode_uttlin
 
 
