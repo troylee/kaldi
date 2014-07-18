@@ -1,0 +1,14 @@
+"2(car)-data2, 3(babble)-data4, 4(restaurant)-data6, 5(street)-data7, 6(airport)-data3, 7(train)-data5"
+data# mean sequential data order from the file list, not really match the condition order(car-babble-restaurant-street-airport-train)
+data2->car(2), data3->airport(6), data4->babble(3), data5->train(7), data6->restaurant(4), data7->street(5)
+data	1	2	3	4	5	6	7
+cond	1	2	6	3	7	4	5
+data	8	9	10	11	12	13	14
+cond	8	9	13	10	14	11	12
+
+# above from Shilin
+--------------------------------------------
+From the original train_multi.list, the first set is 893, then 6 sets with 446 utts each and then the 8th set has also 893, the last 6 sets with 446 utts each.
+Then accordingly the noises are:
+clean, car, airport, babble, train, restaurant, street, clean, car, airport, babble, train, restaurant, street
+

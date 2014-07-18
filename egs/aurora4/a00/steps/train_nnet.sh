@@ -42,6 +42,7 @@ bunchsize=128 #size of the Stochastic-GD update block
 l2_penalty=0.0 #L2 regularization penalty
 
 learn_factors=
+accept_first_update=false
 
 train_opts=        # options, passed to the training script
 train_tool="nnet-train-xent-hardlab-frmshuff"       # optionally change the training tool
@@ -203,6 +204,7 @@ steps/nnet_scheduler/train_scheduler.sh \
   --end_learn_rate $end_learn_rate \
   --bunchsize $bunchsize \
   --l2-penalty $l2_penalty \
+  --accept-first-update $accept_first_update \
   ${train_opts} \
   ${train_tool:+ --train-tool "$train_tool"} \
   ${config:+ --config $config} \

@@ -26,6 +26,9 @@ halving_factor=0.5
 end_learn_rate=0.000001
 
 learn_factors=
+
+accept_first_update=false
+
 # misc.
 verbose=1
 # tool
@@ -81,6 +84,7 @@ $train_tool --cross-validate=true \
 
 acc=$(cat $dir/log/iter00.initial.log | awk '/FRAME_ACCURACY/{ acc=$3; sub(/%/,"",acc); } END{print acc}')
 echo "CROSSVAL PRERUN AVG.FRMACC $(printf "%.4f" $acc)"
+$accept_first_update && acc=0.0
 
 # training
 for iter in $(seq -w $max_iters); do
